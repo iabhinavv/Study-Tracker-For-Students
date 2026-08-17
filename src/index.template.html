@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Study Tracker</title>
+<meta name="description" content="Local-first study tracker: log sessions, track courses, resources and notebooks, and build a map of the topics you have studied.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F1F2EE'/%3E%3Crect x='9' y='5' width='14' height='22' rx='2' fill='%2314171A'/%3E%3Cg fill='%23F1F2EE'%3E%3Crect x='12' y='9' width='8' height='1.6'/%3E%3Crect x='12' y='13' width='8' height='1.6'/%3E%3Crect x='12' y='17' width='8' height='1.6'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+/* {{CSS_FILE}} */
+{{CSS}}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <div class="brand">
+      <span class="mk" aria-hidden="true"></span>
+      <div>Study Tracker<small id="whoami">local &amp; offline</small></div>
+    </div>
+    <nav id="nav">
+      <a href="#/dashboard">Dashboard</a>
+      <a href="#/calendar">Log &amp; Calendar</a>
+      <a href="#/classroom">Classroom</a>
+      <a href="#/resources">Resources</a>
+      <a href="#/notebooks">Notebooks</a>
+      <a href="#/map">Brain Map</a>
+      <a href="#/stats">Statistics</a>
+      <a href="#/data">Data &amp; Backup</a>
+    </nav>
+    <div class="side-foot">
+      <button class="btn sm" id="theme-btn">Dark mode</button>
+      <div id="store-foot">Saved locally. Back up from <a href="#/data">Data</a>.</div>
+    </div>
+  </aside>
+
+  <div id="main">
+    <header id="topbar">
+      <div id="topstats"></div>
+      <div id="pomo-mini"></div>
+    </header>
+    <main id="view"></main>
+  </div>
+</div>
+
+<div id="pomo-panel" class="hidden"></div>
+<div id="modal-root"><div class="scrim"></div><div class="modal" id="modal-box"></div></div>
+<div id="toasts"></div>
+
+<!-- Your data, committed with the repo. A <script> tag (not fetch) so it also
+     loads when index.html is opened straight from disk. Missing file = fresh start. -->
+<script src="data/study-data.js"></script>
+<script>
+{{JS}}
+</script>
+</body>
+</html>

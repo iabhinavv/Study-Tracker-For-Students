@@ -1,0 +1,5 @@
+# The data file is meant to be committed — that is the point of data/study-data.js.
+# These are not.
+.DS_Store
+*.tmp
+data/backups/
