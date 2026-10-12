@@ -1,11 +1,348 @@
-/* Study Tracker — your data lives here, committed with the repo.
-
-   The app writes this file (Data & Backup → Connect data file), so you should
-   not need to edit it by hand. It is a .js file rather than .json so that
-   index.html can load it with a <script> tag: that works when the page is
-   opened straight from disk, where fetching a sibling file is blocked.
-
-   An empty record means a fresh start: open index.html and the welcome screen
-   will offer the starter courses, your own CSV, or an empty tracker. */
-
-window.STUDY_DATA = null;
+/* Study Tracker — your data. Written by the app; commit it with the repo.
+   Loaded by index.html through a <script> tag, which is why this is .js and not .json.
+   Last write: 2026-10-12T16:23:30.940Z */
+window.STUDY_DATA = {
+ "v": 2,
+ "onboarded": true,
+ "profile": {
+  "name": "",
+  "sessionMinutes": 45,
+  "dailyGoalMin": 120,
+  "weekStart": 1,
+  "theme": "light"
+ },
+ "courses": [
+  {
+   "id": "hg7iev099ma",
+   "name": "Math",
+   "color": "#2F4A85",
+   "link": "https://www.youtube.com/playlist?list=PLZ2ps__7DhBb1AyRNidKBrk_N5eTpVQRA",
+   "extraLinks": [],
+   "categories": [
+    "Algebra",
+    "Linear Algebra",
+    "Calculus",
+    "Probability",
+    "Trigonometry",
+    "Series",
+    "exponentials",
+    "functions",
+    "relations",
+    "set theory",
+    "polynomials",
+    "parabola",
+    "slopes",
+    "tangent"
+   ],
+   "totalSessions": 90,
+   "doneOffset": 51,
+   "deadline": "",
+   "status": "active",
+   "notes": "",
+   "extensions": [],
+   "createdAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "cpypdlt99ma",
+   "name": "Stat",
+   "color": "#A2402C",
+   "link": "https://www.youtube.com/playlist?list=PLZ2ps__7DhBbhK4gNFIWwx9cct193V0_b",
+   "extraLinks": [],
+   "categories": [
+    "Descriptive Stats",
+    "Probability",
+    "Distributions",
+    "permutation",
+    "combinatories",
+    "range",
+    "variance",
+    "standard deviation",
+    "mean",
+    "median",
+    "mode"
+   ],
+   "totalSessions": 70,
+   "doneOffset": 27,
+   "deadline": "",
+   "status": "active",
+   "notes": "",
+   "extensions": [],
+   "createdAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "f97rdgl99ma",
+   "name": "CT",
+   "color": "#1F6B4A",
+   "link": "https://www.youtube.com/playlist?list=PLZ2ps__7DhBYSzaAFqpyQKqmoni-EefS7",
+   "extraLinks": [],
+   "categories": [],
+   "totalSessions": 134,
+   "doneOffset": 0,
+   "deadline": "",
+   "status": "active",
+   "notes": "",
+   "extensions": [],
+   "createdAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "8odw7k399ma",
+   "name": "CFA L1",
+   "color": "#7A6015",
+   "link": "https://youtube.com/playlist?list=PLCf2jp0gkWF0&si=YX8uAO1u15q5k6W-",
+   "extraLinks": [],
+   "categories": [],
+   "totalSessions": 39,
+   "doneOffset": 2,
+   "deadline": "",
+   "status": "active",
+   "notes": "",
+   "extensions": [],
+   "createdAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "9grs84599ma",
+   "name": "Python for DS",
+   "color": "#5B4A85",
+   "link": "https://www.youtube.com/playlist?list=PLh2mXjKcTPSACrQxPM2_1Ojus5HX88ht7",
+   "extraLinks": [],
+   "categories": [],
+   "totalSessions": 32,
+   "doneOffset": 0,
+   "deadline": "",
+   "status": "active",
+   "notes": "",
+   "extensions": [],
+   "createdAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "49v6qd699ma",
+   "name": "Quant Finance",
+   "color": "#276E77",
+   "link": "https://www.youtube.com/playlist?list=PL3F00F1C2D402D45C",
+   "extraLinks": [],
+   "categories": [],
+   "totalSessions": 26,
+   "doneOffset": 1,
+   "deadline": "",
+   "status": "active",
+   "notes": "",
+   "extensions": [],
+   "createdAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "b7wlwb799ma",
+   "name": "DBMS",
+   "color": "#8A4A5A",
+   "link": "https://www.youtube.com/playlist?list=PLZ2ps__7DhBYc4jkUk_yQAjYEVFzVzhdU",
+   "extraLinks": [],
+   "categories": [],
+   "totalSessions": 81,
+   "doneOffset": 2,
+   "deadline": "",
+   "status": "active",
+   "notes": "",
+   "extensions": [],
+   "createdAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "0herbxw99ma",
+   "name": "Disc Math",
+   "color": "#4A6B2A",
+   "link": "https://www.youtube.com/playlist?list=PLyqSpQzTE6M_f9q2YVF0rx9oSO_UAteS0",
+   "extraLinks": [],
+   "categories": [],
+   "totalSessions": 61,
+   "doneOffset": 0,
+   "deadline": "",
+   "status": "active",
+   "notes": "",
+   "extensions": [],
+   "createdAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "rp5sunp99ma",
+   "name": "Modern App Dev 1",
+   "color": "#8A5A2B",
+   "link": "https://www.youtube.com/playlist?list=PLZ2ps__7DhBZGVuyXs2l3KJtiHs0KMVE7",
+   "extraLinks": [],
+   "categories": [
+    "client server",
+    "peer-to-peer",
+    "protocols",
+    "web server"
+   ],
+   "totalSessions": 105,
+   "doneOffset": 9,
+   "deadline": "",
+   "status": "active",
+   "notes": "",
+   "extensions": [],
+   "createdAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "6ev98bb99ma",
+   "name": "Spanish",
+   "color": "#3E6BA8",
+   "link": "https://youtu.be/bp9OZoQu3A0?si=OJTMTjEebkWABYok",
+   "extraLinks": [],
+   "categories": [
+    "A1.1",
+    "A1.2"
+   ],
+   "totalSessions": 70,
+   "doneOffset": 0,
+   "deadline": "",
+   "status": "active",
+   "notes": "",
+   "extensions": [],
+   "createdAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "vpchsdm99ma",
+   "name": "NISM Research Analyst",
+   "color": "#6B4A2A",
+   "link": "https://youtube.com/playlist?list=PLMdK_Oe95V-GVbCQMRnd4qowd6OgSqk7A",
+   "extraLinks": [],
+   "categories": [],
+   "totalSessions": 30,
+   "doneOffset": 0,
+   "deadline": "",
+   "status": "dropped",
+   "notes": "",
+   "extensions": [],
+   "createdAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "d6qqtn0dgox",
+   "name": "System Commands",
+   "color": "#2A5B5B",
+   "link": "https://youtube.com/playlist?list=PLZ2ps__7DhBajgl-4et7X2BjOIObqlp81&si=tElkfQvBHwYtKB6v",
+   "extraLinks": [],
+   "categories": [
+    "shell commands",
+    "CLI",
+    "CLE"
+   ],
+   "totalSessions": 33,
+   "doneOffset": 3,
+   "deadline": "",
+   "status": "active",
+   "notes": "",
+   "extensions": [],
+   "createdAt": "2026-10-12T16:14:55.425Z"
+  }
+ ],
+ "sessions": [],
+ "resources": [
+  {
+   "id": "i6gct9u99ma",
+   "title": "Math — course materials",
+   "url": "https://txtghana-my.sharepoint.com/:f:/g/personal/abhinav_gwosevo_com/IgAAWbBzhSn2RIK17FexHfciATG-fUTPW-qczf1Eqrc55hI?e=r4wEe9",
+   "type": "folder",
+   "courseId": "hg7iev099ma",
+   "status": "todo",
+   "notes": "From CSV import",
+   "addedAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "hnwzmhh99ma",
+   "title": "Stat — course materials",
+   "url": "https://txtghana-my.sharepoint.com/:f:/g/personal/abhinav_gwosevo_com/IgAAWbBzhSn2RIK17FexHfciATG-fUTPW-qczf1Eqrc55hI?e=r4wEe9",
+   "type": "folder",
+   "courseId": "cpypdlt99ma",
+   "status": "todo",
+   "notes": "From CSV import",
+   "addedAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "htllcix99ma",
+   "title": "CT — course materials",
+   "url": "https://txtghana-my.sharepoint.com/:f:/g/personal/abhinav_gwosevo_com/IgAAWbBzhSn2RIK17FexHfciATG-fUTPW-qczf1Eqrc55hI?e=r4wEe9",
+   "type": "folder",
+   "courseId": "f97rdgl99ma",
+   "status": "todo",
+   "notes": "From CSV import",
+   "addedAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "30645vj99ma",
+   "title": "Python for DS — course materials",
+   "url": "https://txtghana-my.sharepoint.com/:f:/g/personal/abhinav_gwosevo_com/IgAAWbBzhSn2RIK17FexHfciATG-fUTPW-qczf1Eqrc55hI?e=r4wEe9",
+   "type": "folder",
+   "courseId": "9grs84599ma",
+   "status": "todo",
+   "notes": "From CSV import",
+   "addedAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "u8zgrtv99ma",
+   "title": "DBMS — course materials",
+   "url": "https://txtghana-my.sharepoint.com/:f:/g/personal/abhinav_gwosevo_com/IgAAWbBzhSn2RIK17FexHfciATG-fUTPW-qczf1Eqrc55hI?e=r4wEe9",
+   "type": "folder",
+   "courseId": "b7wlwb799ma",
+   "status": "todo",
+   "notes": "From CSV import",
+   "addedAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "bhdbo5c99ma",
+   "title": "Disc Math — course materials",
+   "url": "https://txtghana-my.sharepoint.com/:f:/g/personal/abhinav_gwosevo_com/IgAAWbBzhSn2RIK17FexHfciATG-fUTPW-qczf1Eqrc55hI?e=r4wEe9",
+   "type": "folder",
+   "courseId": "0herbxw99ma",
+   "status": "todo",
+   "notes": "From CSV import",
+   "addedAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "rqtji0u99ma",
+   "title": "Web App Dev — course materials",
+   "url": "https://txtghana-my.sharepoint.com/:f:/g/personal/abhinav_gwosevo_com/IgAAWbBzhSn2RIK17FexHfciATG-fUTPW-qczf1Eqrc55hI?e=r4wEe9",
+   "type": "folder",
+   "courseId": "rp5sunp99ma",
+   "status": "todo",
+   "notes": "From CSV import",
+   "addedAt": "2026-08-30T18:01:47.506Z"
+  },
+  {
+   "id": "0xb5g9el0gq",
+   "title": "A1 youtube",
+   "url": "https://youtube.com/playlist?list=PLYitpHBq-8SXrpjOHu6nU60Uq6QQ6NpIH&si=Mz0vSucu3QcL0QZV",
+   "type": "video",
+   "courseId": "6ev98bb99ma",
+   "status": "todo",
+   "notes": "",
+   "addedAt": "2026-10-12T16:21:01.093Z"
+  },
+  {
+   "id": "9ntskhelbmk",
+   "title": "A2 youtube",
+   "url": "https://youtube.com/playlist?list=PLYitpHBq-8SV3mHNDApXpGJob6dHx-I4C&si=3lcfrYNhtZqn71WZ",
+   "type": "video",
+   "courseId": "6ev98bb99ma",
+   "status": "todo",
+   "notes": "",
+   "addedAt": "2026-10-12T16:21:19.425Z"
+  }
+ ],
+ "notebooks": [],
+ "pomo": {
+  "phase": "focus",
+  "running": false,
+  "endsAt": 0,
+  "left": 1500,
+  "cycles": 0,
+  "courseId": null
+ },
+ "pomoCfg": {
+  "focus": 25,
+  "short": 5,
+  "long": 15,
+  "cycle": 4,
+  "autoLog": true,
+  "countAsSession": true,
+  "sound": true
+ },
+ "lastCourseId": null,
+ "savedAt": "2026-10-12T16:21:29.741Z"
+};
