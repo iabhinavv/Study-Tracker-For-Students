@@ -22,7 +22,7 @@ var MAP = {
   nodes: [], links: [], byKey: {},
   view: { k: 1, tx: 0, ty: 0 },
   rot: -Math.PI / 2,          // where the first course starts
-  spin: false, labels: true,
+  spin: true, labels: true,   /* pulled from index.html edit (dc85c0a): map spins by default */
   pan: null, hover: null, raf: null, ink: null
 };
 

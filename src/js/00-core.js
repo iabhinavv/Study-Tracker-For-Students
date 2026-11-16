@@ -377,10 +377,16 @@ function modal(html, onMount, wide) {
   var root = $('#modal-root'), box = $('#modal-box');
   box.className = 'modal' + (wide ? ' wide' : '');
   box.innerHTML = html;
+  if (isNarrow() && !box.querySelector('.modal-foot')) {
+    var x = document.createElement('button');
+    x.type = 'button'; x.className = 'sheet-x'; x.setAttribute('data-act', 'modal-close');
+    x.setAttribute('aria-label', 'Close'); x.textContent = 'Close';
+    box.insertBefore(x, box.firstChild);
+  }
   root.classList.add('on');
   if (onMount) onMount(box);
   var first = box.querySelector('input,select,textarea,button');
-  if (first && first.focus) setTimeout(function () { first.focus(); }, 30);
+  if (first && first.focus && !isNarrow()) setTimeout(function () { first.focus(); }, 30);
 }
 function modalClose() {
   $('#modal-root').classList.remove('on');

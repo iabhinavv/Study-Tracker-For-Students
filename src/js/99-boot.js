@@ -15,6 +15,35 @@ var ROUTES = {
 
 var ROUTE_LAST = '';
 
+/* ---- mobile chrome: slim top title + bottom tab bar ---- */
+var PAGE_LABELS = {
+  dashboard: 'Dashboard', calendar: 'Log & Calendar', classroom: 'Classroom',
+  resources: 'Resources', notebooks: 'Notebooks', map: 'Brain Map',
+  stats: 'Statistics', data: 'Data & Backup'
+};
+var TAB_FOR = { dashboard: 'dashboard', calendar: 'calendar', map: 'map' };   /* the rest live under More */
+
+function buildTabbar() {
+  var bar = $('#tabbar');
+  if (!bar || bar.childNodes.length) return;
+  bar.innerHTML =
+    '<a class="tab" href="#/dashboard" data-tab="dashboard">Home</a>' +
+    '<a class="tab" href="#/calendar" data-tab="calendar">Calendar</a>' +
+    '<button class="tab log" type="button" data-act="quick-log" aria-label="Log a session"><span class="disc">Log</span></button>' +
+    '<a class="tab" href="#/map" data-tab="map">Map</a>' +
+    '<button class="tab more" type="button" data-act="more-sheet" data-tab="more">More</button>';
+}
+
+function updateChrome(page) {
+  var tb = $('#topbrand');
+  if (tb) tb.innerHTML = '<span class="mk" aria-hidden="true"></span><span class="pg">' +
+    esc(PAGE_LABELS[page] || 'Study Tracker') + '</span>';
+  var active = TAB_FOR[page] || 'more';
+  $$('#tabbar [data-tab]').forEach(function (el) {
+    el.classList.toggle('on', el.getAttribute('data-tab') === active);
+  });
+}
+
 function route() {
   var hash = location.hash || '#/dashboard';
   var parts = hash.replace(/^#\/?/, '').split('?');
@@ -33,6 +62,7 @@ function route() {
   $$('#nav a').forEach(function (a) {
     a.classList.toggle('on', a.getAttribute('href').indexOf('#/' + page) === 0);
   });
+  updateChrome(page);
 
   if (page !== 'map' && MAP.raf) { cancelAnimationFrame(MAP.raf); MAP.raf = null; }
   if (page === 'dashboard' || page === 'calendar') {
@@ -67,6 +97,23 @@ ACTIONS['quick-log'] = function () {
 };
 ACTIONS['modal-close'] = function () { modalClose(); };
 
+ACTIONS['more-sheet'] = function () {
+  var page = (location.hash.replace(/^#\/?/, '').split('?')[0]) || 'dashboard';
+  var items = [['classroom', 'Classroom'], ['stats', 'Statistics'], ['resources', 'Resources'],
+               ['notebooks', 'Notebooks'], ['data', 'Data & Backup']];
+  var rows = items.map(function (it) {
+    var on = page === it[0];
+    return '<a class="sheet-row' + (on ? ' on' : '') + '" href="#/' + it[0] + '" data-act="more-go">' +
+      '<span class="sq"></span>' + it[1] + (on ? '<span class="meta">viewing</span>' : '') + '</a>';
+  }).join('');
+  rows += '<button class="sheet-row" type="button" data-act="more-theme"><span class="sq"></span>' +
+    (DB.profile.theme === 'dark' ? 'Switch to paper mode' : 'Switch to dark mode') + '</button>';
+  modal('<h2>More</h2><div class="sheet-list">' + rows + '</div>' +
+    '<div class="modal-foot"><button class="btn" data-act="modal-close">Close</button></div>');
+};
+ACTIONS['more-go'] = function () { modalClose(); };            // the anchor navigates on its own
+ACTIONS['more-theme'] = function () { modalClose(); ACTIONS['theme'](); };
+
 /* ------------------------------- theme ---------------------------------- */
 function applyTheme() {
   var dark = DB.profile.theme === 'dark';
@@ -74,6 +121,11 @@ function applyTheme() {
   var b = $('#theme-btn');
   if (b) b.textContent = dark ? 'Paper mode' : 'Dark mode';
   MAP.ink = null;
+  var meta = document.getElementById('theme-color-meta');
+  if (meta) {
+    var c = getComputedStyle(document.documentElement).getPropertyValue('--surface').trim();
+    meta.setAttribute('content', c || (dark ? '#0B1730' : '#F1F2EE'));
+  }
 }
 ACTIONS['theme'] = function () {
   DB.profile.theme = DB.profile.theme === 'light' ? 'dark' : 'light';
@@ -139,6 +191,7 @@ function deadlineCheck() {
 
 /* ------------------------------- start ---------------------------------- */
 function bootUI(had) {
+  buildTabbar();
   applyTheme();
   if (!location.hash) location.hash = '#/dashboard';
   logReset(today());

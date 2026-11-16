@@ -13,6 +13,8 @@ Study Tracker/
 ├── index.html                  ← the whole app. Open this. That's it.
 ├── data/
 │   └── study-data.js           ← your log, committed with the repo
+├── manifest.webmanifest        ← home-screen / PWA manifest (phone)
+├── icons/                      ← home-screen icons (phone)
 ├── README.md                   ← this file
 ├── serve.py                    ← optional; only if you want an http:// origin
 ├── build.py                    ← rebuilds index.html from src/ (only if you edit the code)
@@ -129,8 +131,24 @@ light automatically on the blueprint ground). If you add to the app, keep it
 that way.
 
 The top bar is deliberately almost empty on a desktop — only the Pomodoro
-timer, which is the one control that belongs in every view. On a phone it also
-carries a **Log a session** button, since the form itself is a scroll away.
+timer, which is the one control that belongs in every view.
+
+### On a phone
+
+Below 900px the app becomes a phone app: the left sidebar is replaced by a
+**bottom tab bar** within thumb reach — Home, Calendar, a raised **Log** button
+in the middle, Map, and **More** (which opens a sheet for Classroom,
+Statistics, Resources, Notebooks, Data & Backup, and the theme switch). The top
+bar shrinks to the current page name plus the timer. Dialogs — the log form, the
+edit sheet, More — slide up from the bottom as sheets with a sticky **Close**,
+and respect the notch and home-indicator safe areas.
+
+Add it to your home screen for a standalone, full-screen web app: it ships a
+`manifest.webmanifest`, home-screen icons in `icons/`, and the iOS web-app meta
+tags, and the browser chrome colour follows the paper/blueprint theme. Form
+fields are 16px so iOS never zooms the page when you tap one. (Add-to-home-screen
+needs the app served over http/https — GitHub Pages or `serve.py` — not opened
+from a bare file path.)
 
 ---
 

@@ -1,0 +1,16 @@
+{
+  "name": "Study Tracker",
+  "short_name": "Study",
+  "description": "Local-first study tracker: log sessions, track courses, and map the topics you have studied.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F1F2EE",
+  "theme_color": "#F1F2EE",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -6,6 +6,14 @@
 <title>Study Tracker</title>
 <meta name="description" content="Local-first study tracker: log sessions, track courses, resources and notebooks, and build a map of the topics you have studied.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F1F2EE'/%3E%3Crect x='9' y='5' width='14' height='22' rx='2' fill='%2314171A'/%3E%3Cg fill='%23F1F2EE'%3E%3Crect x='12' y='9' width='8' height='1.6'/%3E%3Crect x='12' y='13' width='8' height='1.6'/%3E%3Crect x='12' y='17' width='8' height='1.6'/%3E%3C/g%3E%3C/svg%3E">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" id="theme-color-meta" content="#F1F2EE">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Study Tracker">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
 <style>
 /* built from src/app.css */
 /* ===== Study Tracker — styles =================================================
@@ -103,6 +111,11 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+  overflow-x: clip;
   background-color: var(--paper);
   background-image:
     linear-gradient(var(--grid) 1px, transparent 1px),
@@ -137,7 +150,7 @@ code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .92em;
 #topstats .only-narrow { display: none; }   /* shown again in the narrow block */
 
 /* ---------- shell ---------- */
-#app { display: flex; min-height: 100vh; }
+#app { display: flex; min-height: 100vh; min-height: 100dvh; }
 
 #sidebar {
   width: 208px; flex: 0 0 208px;
@@ -456,26 +469,80 @@ tr:last-child td { border-bottom: none; }
 @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
 
 /* ---------- narrow screens ---------- */
+/* ---------- mobile app shell (hidden on desktop, shown in the phone media query) ---------- */
+#topbrand { display: none; align-items: center; gap: 9px; min-width: 0; flex: 1 1 auto; }
+#topbrand .mk { width: 13px; height: 17px; flex: none; background: var(--ink); position: relative; }
+#topbrand .mk::after {
+  content: ""; position: absolute; left: 2px; top: 3.5px; right: 2px; height: 1.3px;
+  background: var(--surface); box-shadow: 0 3px 0 var(--surface), 0 6px 0 var(--surface);
+}
+#topbrand .pg { font-weight: 600; font-size: 17px; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+#tabbar { display: none; }
+.sheet-x { display: none; }
+
+/* "More" bottom-sheet list */
+.sheet-list { display: flex; flex-direction: column; margin: 4px 0 2px; }
+.sheet-row {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 15px 8px; border: 0; border-bottom: 1px solid var(--rule); background: none;
+  font-family: var(--serif); font-size: 16px; color: var(--ink); cursor: pointer; text-decoration: none;
+}
+.sheet-row:last-child { border-bottom: 0; }
+.sheet-row:hover { text-decoration: none; }
+.sheet-row.on { color: var(--accent); font-weight: 600; }
+.sheet-row .sq { width: 8px; height: 8px; flex: none; background: var(--rule-2); }
+.sheet-row.on .sq { background: var(--accent); }
+.sheet-row .meta { margin-left: auto; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+
 @media (max-width: 900px) {
-  #app { flex-direction: column; }
-  #sidebar {
-    position: sticky; top: 0; z-index: 40;
-    height: auto; width: 100%; flex: none;
-    flex-direction: row; align-items: center; gap: 14px; padding: 9px 12px;
-    border-right: 0; border-bottom: 1px solid var(--rule-2);
+  #app { flex-direction: column; min-height: 100dvh; }
+  #sidebar { display: none; }                      /* navigation moves to the bottom tab bar */
+  #topbrand { display: flex; }
+  #topstats { display: none; }                     /* logging lives on the bottom bar now */
+  #topbar {
+    padding: 8px 14px; padding-top: max(8px, env(safe-area-inset-top));
+    min-height: 48px; gap: 10px;
   }
-  .brand { font-size: 16px; }
-  .brand small, .side-foot { display: none; }
-  #nav { flex-direction: row; gap: 2px; overflow-x: auto; scrollbar-width: none; }
-  #nav::-webkit-scrollbar { display: none; }
-  #nav a {
-    padding: 6px 10px; border-left: 0; border-bottom: 2px solid transparent;
-    white-space: nowrap; font-size: 14.5px;
+  #view { padding: 16px 14px; padding-bottom: calc(60px + env(safe-area-inset-bottom) + 24px); }
+
+  /* bottom tab bar — primary navigation within thumb reach */
+  #tabbar {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+    background: var(--surface); border-top: 1px solid var(--rule-2);
+    padding-bottom: env(safe-area-inset-bottom);
   }
-  #nav a.on { border-left: 0; border-bottom-color: var(--accent); padding-left: 10px; }
-  #topbar { padding: 8px 14px; min-height: 46px; }
-  #view { padding: 18px 14px 80px; }
-  #topstats .only-narrow { display: inline-flex; }
+  #tabbar .tab {
+    position: relative; appearance: none; -webkit-appearance: none; background: none; border: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    min-height: 58px; padding: 8px 2px 7px; cursor: pointer; text-decoration: none;
+    font-family: var(--serif); font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase;
+    font-weight: 600; color: var(--ink-3);
+  }
+  #tabbar .tab:hover { text-decoration: none; }
+  #tabbar .tab::before {
+    content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 22px; height: 2px; background: transparent;
+  }
+  #tabbar .tab.on { color: var(--accent); }
+  #tabbar .tab.on::before { background: var(--accent); }
+  #tabbar .tab.log { justify-content: flex-start; }
+  #tabbar .tab.log::before { display: none; }
+  #tabbar .tab.log .disc {
+    display: flex; align-items: center; justify-content: center;
+    width: 48px; height: 48px; margin-top: -16px; background: var(--accent);
+    border: 2px solid var(--surface); color: var(--on-accent);
+    font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600;
+    box-shadow: 0 2px 10px rgba(20, 23, 26, .22);
+  }
+  #tabbar .tab.log:active .disc { background: var(--accent-h); }
+
+  /* touch-size form controls; 16px stops iOS from zooming the page on focus */
+  input[type=text], input[type=url], input[type=date], input[type=number],
+  input[type=time], select, textarea { font-size: 16px; padding: 10px 11px; }
+  .btn { padding: 9px 14px; }
+  .sess-row .btn.sm, .linkline a { min-height: 32px; }
 
   h1 { font-size: 22px; }
   h2 { font-size: 17px; }
@@ -502,17 +569,32 @@ tr:last-child td { border-bottom: none; }
     padding: 8px; border-top: 1px solid var(--rule); background: var(--raise);
   }
   #map-ctl .btn { font-size: 11.5px; padding: 4px 7px; }
-  #pomo-panel { right: 10px; left: 10px; width: auto; bottom: 10px; }
+  #pomo-panel { right: 10px; left: 10px; width: auto; bottom: calc(60px + env(safe-area-inset-bottom) + 12px); }
   .modal { margin: 3vh auto; padding: 18px 16px; width: 96vw; }
   .stepper input { font-size: 19px; min-width: 56px; }
   .stepper button { width: 44px; }
-  #toasts { bottom: 14px; }
+  #toasts { bottom: calc(60px + env(safe-area-inset-bottom) + 14px); }
 }
 
 @media (max-width: 620px) {
+  /* dialogs slide up from the bottom, like a native sheet */
+  .modal {
+    position: fixed; left: 0; right: 0; bottom: 0; margin: 0; width: 100%;
+    max-height: 92dvh; border-left: 0; border-right: 0; border-bottom: 0;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+    animation: sheetup .18s ease-out;
+  }
+  @keyframes sheetup { from { transform: translateY(100%); } to { transform: none; } }
+  .modal .sheet-x {
+    display: block; position: sticky; top: 0; z-index: 3;
+    margin: -6px -6px 8px auto; width: max-content;
+    padding: 7px 12px; border: 1px solid var(--rule-2); background: var(--surface);
+    font-family: var(--serif); font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    font-weight: 600; color: var(--ink-2); cursor: pointer;
+  }
   .brand > div { display: none; }           /* the mark alone is enough on a phone */
   #topstats .pill, #pomo-mini .lbl { display: none; }   /* one clean line: log + timer */
-  #topbar { gap: 8px; padding: 7px 11px; }
+  #topbar { gap: 8px; padding: 7px 11px; padding-top: max(7px, env(safe-area-inset-top)); }
   .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .g4 > .span2 { grid-column: 1 / -1; }
   .kpi .k { font-size: 9.5px; letter-spacing: .14em; }
@@ -522,9 +604,8 @@ tr:last-child td { border-bottom: none; }
   .linkline { gap: 10px; }
   .legend .lrow { font-size: 12.5px; }
   #map { height: 420px; }
-  #view { padding: 16px 11px 80px; }
+  #view { padding: 14px 12px; padding-bottom: calc(60px + env(safe-area-inset-bottom) + 24px); }
   .sess-row { font-size: 14px; }
-  .modal { padding: 16px 13px; }
   .chips { gap: 5px; }
   .chip { font-size: 12.5px; padding: 4px 8px; }
   .btn { padding: 8px 13px; }
@@ -564,6 +645,7 @@ tr:last-child td { border-bottom: none; }
 
   <div id="main">
     <header id="topbar">
+      <div id="topbrand" aria-hidden="true"></div>
       <div id="topstats"></div>
       <div id="pomo-mini"></div>
     </header>
@@ -574,6 +656,7 @@ tr:last-child td { border-bottom: none; }
 <div id="pomo-panel" class="hidden"></div>
 <div id="modal-root"><div class="scrim"></div><div class="modal" id="modal-box"></div></div>
 <div id="toasts"></div>
+<nav id="tabbar" aria-label="Sections"></nav>
 
 <!-- Your data, committed with the repo. A <script> tag (not fetch) so it also
      loads when index.html is opened straight from disk. Missing file = fresh start. -->
@@ -959,10 +1042,16 @@ function modal(html, onMount, wide) {
   var root = $('#modal-root'), box = $('#modal-box');
   box.className = 'modal' + (wide ? ' wide' : '');
   box.innerHTML = html;
+  if (isNarrow() && !box.querySelector('.modal-foot')) {
+    var x = document.createElement('button');
+    x.type = 'button'; x.className = 'sheet-x'; x.setAttribute('data-act', 'modal-close');
+    x.setAttribute('aria-label', 'Close'); x.textContent = 'Close';
+    box.insertBefore(x, box.firstChild);
+  }
   root.classList.add('on');
   if (onMount) onMount(box);
   var first = box.querySelector('input,select,textarea,button');
-  if (first && first.focus) setTimeout(function () { first.focus(); }, 30);
+  if (first && first.focus && !isNarrow()) setTimeout(function () { first.focus(); }, 30);
 }
 function modalClose() {
   $('#modal-root').classList.remove('on');
@@ -2876,7 +2965,7 @@ var MAP = {
   nodes: [], links: [], byKey: {},
   view: { k: 1, tx: 0, ty: 0 },
   rot: -Math.PI / 2,          // where the first course starts
-  spin: true, labels: true,
+  spin: true, labels: true,   /* pulled from index.html edit (dc85c0a): map spins by default */
   pan: null, hover: null, raf: null, ink: null
 };
 
@@ -4180,6 +4269,35 @@ var ROUTES = {
 
 var ROUTE_LAST = '';
 
+/* ---- mobile chrome: slim top title + bottom tab bar ---- */
+var PAGE_LABELS = {
+  dashboard: 'Dashboard', calendar: 'Log & Calendar', classroom: 'Classroom',
+  resources: 'Resources', notebooks: 'Notebooks', map: 'Brain Map',
+  stats: 'Statistics', data: 'Data & Backup'
+};
+var TAB_FOR = { dashboard: 'dashboard', calendar: 'calendar', map: 'map' };   /* the rest live under More */
+
+function buildTabbar() {
+  var bar = $('#tabbar');
+  if (!bar || bar.childNodes.length) return;
+  bar.innerHTML =
+    '<a class="tab" href="#/dashboard" data-tab="dashboard">Home</a>' +
+    '<a class="tab" href="#/calendar" data-tab="calendar">Calendar</a>' +
+    '<button class="tab log" type="button" data-act="quick-log" aria-label="Log a session"><span class="disc">Log</span></button>' +
+    '<a class="tab" href="#/map" data-tab="map">Map</a>' +
+    '<button class="tab more" type="button" data-act="more-sheet" data-tab="more">More</button>';
+}
+
+function updateChrome(page) {
+  var tb = $('#topbrand');
+  if (tb) tb.innerHTML = '<span class="mk" aria-hidden="true"></span><span class="pg">' +
+    esc(PAGE_LABELS[page] || 'Study Tracker') + '</span>';
+  var active = TAB_FOR[page] || 'more';
+  $$('#tabbar [data-tab]').forEach(function (el) {
+    el.classList.toggle('on', el.getAttribute('data-tab') === active);
+  });
+}
+
 function route() {
   var hash = location.hash || '#/dashboard';
   var parts = hash.replace(/^#\/?/, '').split('?');
@@ -4198,6 +4316,7 @@ function route() {
   $$('#nav a').forEach(function (a) {
     a.classList.toggle('on', a.getAttribute('href').indexOf('#/' + page) === 0);
   });
+  updateChrome(page);
 
   if (page !== 'map' && MAP.raf) { cancelAnimationFrame(MAP.raf); MAP.raf = null; }
   if (page === 'dashboard' || page === 'calendar') {
@@ -4232,6 +4351,23 @@ ACTIONS['quick-log'] = function () {
 };
 ACTIONS['modal-close'] = function () { modalClose(); };
 
+ACTIONS['more-sheet'] = function () {
+  var page = (location.hash.replace(/^#\/?/, '').split('?')[0]) || 'dashboard';
+  var items = [['classroom', 'Classroom'], ['stats', 'Statistics'], ['resources', 'Resources'],
+               ['notebooks', 'Notebooks'], ['data', 'Data & Backup']];
+  var rows = items.map(function (it) {
+    var on = page === it[0];
+    return '<a class="sheet-row' + (on ? ' on' : '') + '" href="#/' + it[0] + '" data-act="more-go">' +
+      '<span class="sq"></span>' + it[1] + (on ? '<span class="meta">viewing</span>' : '') + '</a>';
+  }).join('');
+  rows += '<button class="sheet-row" type="button" data-act="more-theme"><span class="sq"></span>' +
+    (DB.profile.theme === 'dark' ? 'Switch to paper mode' : 'Switch to dark mode') + '</button>';
+  modal('<h2>More</h2><div class="sheet-list">' + rows + '</div>' +
+    '<div class="modal-foot"><button class="btn" data-act="modal-close">Close</button></div>');
+};
+ACTIONS['more-go'] = function () { modalClose(); };            // the anchor navigates on its own
+ACTIONS['more-theme'] = function () { modalClose(); ACTIONS['theme'](); };
+
 /* ------------------------------- theme ---------------------------------- */
 function applyTheme() {
   var dark = DB.profile.theme === 'dark';
@@ -4239,6 +4375,11 @@ function applyTheme() {
   var b = $('#theme-btn');
   if (b) b.textContent = dark ? 'Paper mode' : 'Dark mode';
   MAP.ink = null;
+  var meta = document.getElementById('theme-color-meta');
+  if (meta) {
+    var c = getComputedStyle(document.documentElement).getPropertyValue('--surface').trim();
+    meta.setAttribute('content', c || (dark ? '#0B1730' : '#F1F2EE'));
+  }
 }
 ACTIONS['theme'] = function () {
   DB.profile.theme = DB.profile.theme === 'light' ? 'dark' : 'light';
@@ -4304,6 +4445,7 @@ function deadlineCheck() {
 
 /* ------------------------------- start ---------------------------------- */
 function bootUI(had) {
+  buildTabbar();
   applyTheme();
   if (!location.hash) location.hash = '#/dashboard';
   logReset(today());
