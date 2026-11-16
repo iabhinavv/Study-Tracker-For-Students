@@ -1,160 +1,127 @@
-/* =============================================================================
-   10-log — the quick-log form (the thing you touch every day) and session edit.
+/* Quick logging, browser-local drafts and session editing.
+   The fixed action footer resolves its owning form inside the dialog. */
 
-   Design goal: log a session in ~3 keystrokes. The form remembers the last
-   course, defaults minutes to your usual session length, and Enter saves.
-
-   IMPORTANT — why this file looks paranoid about which form it is reading:
-   the same form can be on screen twice (inline on the Dashboard, and inside a
-   dialog opened from anywhere else), and a dialog can be dismissed without the
-   page re-rendering. So the form is NEVER resolved from a module-level
-   variable; it is resolved from the DOM, starting at the button that was
-   clicked (`[data-logform]` ancestor) and reading fields by `data-role` inside
-   that one element. If the form cannot be resolved, saving refuses rather than
-   quietly writing default values.
-   ========================================================================== */
-
-var LOGF = { courseId: null, date: null, topics: [], p: 'log' };
-
+var LOGF = { courseId: null, date: null, topics: [], p: 'log', count: 1, minutes: 45, note: '', receiptId: null };
+var LOG_DRAFT_KEY = STORE_KEY + '-log-draft';
 function logReset(dateIso) {
   LOGF.courseId = DB.lastCourseId && courseById(DB.lastCourseId) && courseById(DB.lastCourseId).status === 'active'
-    ? DB.lastCourseId
-    : (activeCourses()[0] ? activeCourses()[0].id : null);
-  LOGF.date = dateIso || today();
-  LOGF.topics = [];
+    ? DB.lastCourseId : (activeCourses()[0] ? activeCourses()[0].id : null);
+  LOGF.date = dateIso || today(); LOGF.topics = []; LOGF.count = 1;
+  LOGF.minutes = DB.profile.sessionMinutes || 45; LOGF.note = ''; LOGF.receiptId = null;
 }
-
-/* ---- resolving the live form ---- */
-
-/* the form the user is actually in: the one containing the clicked control,
-   else the one inside an open dialog, else the one on the page */
 function logRoot(el) {
-  if (el && el.closest) {
-    var owned = el.closest('[data-logform]');
-    if (owned) return owned;
-  }
-  if ($('#modal-root').classList.contains('on')) {
-    var inModal = $('#modal-box [data-logform]');
-    if (inModal) return inModal;
-  }
-  return $('[data-logform]');
+  var owned = el && el.closest ? el.closest('[data-logform]') : null;
+  return owned || $('#modal-box [data-logform]') || $('[data-logform]');
 }
-function logField(root, role) { return root ? root.querySelector('[data-role="' + role + '"]') : null; }
+function logField(root, role) {
+  if (!root) return null;
+  return root.querySelector('[data-role="' + role + '"]') ||
+    (role === 'echo' && root.closest('.modal') ? root.closest('.modal').querySelector('[data-role="echo"]') : null);
+}
 function logNum(root, role, dflt) {
-  var i = logField(root, role);
-  if (!i) return null;                       // missing field: the caller decides
-  var n = parseFloat(i.value);
-  return isFinite(n) ? n : dflt;
+  var input = logField(root, role);
+  if (!input) return null;
+  var value = parseFloat(input.value); return isFinite(value) ? value : dflt;
 }
+function logKeepDraft() {
+  var root = $('#modal-box [data-logform]');
+  if (!root) return;
+  LOGF.courseId = logField(root, 'course').value; LOGF.date = logField(root, 'date').value;
+  LOGF.count = logNum(root, 'count', 0); LOGF.minutes = logNum(root, 'mins', 0);
+  LOGF.note = logField(root, 'note').value;
+  try { localStorage.setItem(LOG_DRAFT_KEY, JSON.stringify(LOGF)); } catch (e) { /* drafts are optional */ }
+}
+function logRestoreDraft() {
+  try {
+    var draft = JSON.parse(localStorage.getItem(LOG_DRAFT_KEY));
+    if (!draft || !courseById(draft.courseId) || courseById(draft.courseId).status === 'dropped') return false;
+    Object.assign(LOGF, draft); LOGF.topics = Array.isArray(draft.topics) ? draft.topics : [];
+    return true;
+  } catch (e) { return false; }
+}
+function logForgetDraft() { try { localStorage.removeItem(LOG_DRAFT_KEY); } catch (e) { /* ignore */ } }
 
 function topicPickerHTML(courseId, chosen) {
-  var c = courseById(courseId);
-  if (!c) return '';
-  var cats = c.categories || [];
-  var html = '<label class="f">Topics covered <span class="plain">— these grow your brain map</span></label>';
-  if (!cats.length) {
-    html += '<div class="hint" style="margin:0 0 8px">No topics on this course yet. Add a few — they become the nodes of your map.</div>';
-  }
-  html += '<div class="chips" style="margin-bottom:8px">';
-  cats.forEach(function (t) {
-    var on = chosen.indexOf(t) >= 0;
-    html += '<button type="button" class="chip' + (on ? ' on' : '') + '" data-act="log-topic" data-topic="' + esc(t) + '">' + esc(t) + '</button>';
-  });
-  html += '<button type="button" class="chip" data-act="log-newtopic">+ add topic</button>';
-  html += '</div>';
-  return html;
+  var c = courseById(courseId); if (!c) return '';
+  return '<label class="f" for="' + LOGF.p + '-topic-search">Find a topic</label>' +
+    '<input type="search" id="' + LOGF.p + '-topic-search" data-role="topic-search" placeholder="Search topics…">' +
+    '<div class="chips topic-options">' + (c.categories || []).map(function (t) {
+      var on = chosen.indexOf(t) >= 0;
+      return '<button type="button" class="chip' + (on ? ' on' : '') + '" aria-pressed="' + on +
+        '" data-act="log-topic" data-topic="' + esc(t) + '">' + esc(t) + '</button>';
+    }).join('') + '<button type="button" class="chip" data-act="log-newtopic">Add topic</button></div>';
 }
-
-/* opts.prefix only keeps the stepper/chip targets unique between two copies */
 function logCardHTML(opts) {
-  opts = opts || {};
-  var p = opts.prefix || 'log';
-  LOGF.p = p;
-  var courses = DB.courses.filter(function (c) { return c.status !== 'dropped'; });
-  if (!courses.length) {
-    return '<div class="card"><h2>Log a session</h2><div class="empty">Add a course first — ' +
-      '<a href="#/classroom">go to Classroom</a>.</div></div>';
+  opts = opts || {}; var p = opts.prefix || 'log'; LOGF.p = p;
+  if (!DB.courses.some(function (c) { return c.status !== 'dropped'; })) {
+    return '<h2>Log a session</h2><div class="empty">Add a course first. <a href="#/classroom" data-act="modal-close">Open Courses</a></div>';
   }
-  var mins = DB.profile.sessionMinutes || 45;
-  return '' +
-  '<div class="card" id="' + p + '-card" data-logform="' + p + '">' +
-    '<div class="row" style="margin-bottom:14px"><h2 style="margin:0">Log a session</h2>' +
-      '<span class="spacer"></span>' +
-      '<span class="mini">Enter saves</span></div>' +
-    '<div class="grid" style="gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">' +
-      '<div class="field"><label class="f">Course</label>' +
-        '<select data-role="course">' + courseOptions(LOGF.courseId) + '</select></div>' +
-      '<div class="field"><label class="f">Date</label>' +
-        '<input type="date" data-role="date" value="' + esc(LOGF.date || today()) + '" max="' + today() + '"></div>' +
-    '</div>' +
-    '<div class="grid" style="gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">' +
-      '<div class="field"><label class="f">Sessions / lectures done</label>' + stepper(p + '-count', 1, 1, 0, 99, 'count') +
-        '<div class="chips" style="margin-top:8px">' +
-          [1, 2, 3, 5].map(function (n) { return '<button type="button" class="chip" data-act="set-num" data-target="' + p + '-count" data-val="' + n + '">' + n + '</button>'; }).join('') +
-        '</div></div>' +
-      '<div class="field"><label class="f">Minutes studied</label>' + stepper(p + '-mins', mins, 5, 0, 1440, 'mins') +
-        '<div class="chips" style="margin-top:8px">' +
-          [15, 25, 45, 60, 90, 120].map(function (n) { return '<button type="button" class="chip" data-act="set-num" data-target="' + p + '-mins" data-val="' + n + '">' + n + '</button>'; }).join('') +
-        '</div></div>' +
-    '</div>' +
-    '<div class="field" data-role="topics">' + topicPickerHTML(LOGF.courseId, LOGF.topics) + '</div>' +
-    '<div class="field"><label class="f">Note (optional)</label>' +
-      '<input type="text" data-role="note" placeholder="e.g. finished Ch.4 problems, revisit Bayes"></div>' +
-    '<div class="row"><button class="btn primary" data-act="log-save">Save session</button>' +
-      '<span class="mini" data-role="echo"></span></div>' +
-  '</div>';
+  var course = courseById(LOGF.courseId), date = LOGF.date || today();
+  return '<div data-logform="' + p + '" class="log-form">' +
+    '<h2>Log a session</h2>' +
+    '<div class="field"><label class="f" for="' + p + '-course">Course</label>' +
+      '<select id="' + p + '-course" data-role="course">' + courseOptions(LOGF.courseId) + '</select></div>' +
+    '<details class="disclosure log-date"' + (date !== today() ? ' open' : '') + '><summary>' +
+      '<span data-role="date-label">' + (date === today() ? 'Today' : fmtDate(date)) + '</span><span class="mini">Change date</span></summary>' +
+      '<div class="field"><label class="f" for="' + p + '-date">Study date</label>' +
+      '<input type="date" id="' + p + '-date" data-role="date" value="' + esc(date) + '" max="' + today() + '"></div></details>' +
+    '<div class="grid log-numbers">' +
+      '<div class="field"><label class="f">Study time · minutes</label>' + stepper(p + '-mins', LOGF.minutes, 5, 0, 1440, 'mins') +
+        '<div class="chips presets">' + [25, 45, 60].map(function (n) { return '<button type="button" class="chip" data-act="set-num" data-target="' + p + '-mins" data-val="' + n + '">' + n + ' min</button>'; }).join('') + '</div></div>' +
+      '<div class="field"><label class="f" data-role="unit-label">' + esc(courseUnit(course)) + ' completed</label>' + stepper(p + '-count', LOGF.count, 1, 0, 9999, 'count') +
+        '<div class="chips presets">' + [0, 1, 2].map(function (n) { return '<button type="button" class="chip" data-act="set-num" data-target="' + p + '-count" data-val="' + n + '">' + n + '</button>'; }).join('') + '</div></div>' +
+    '</div><details class="disclosure" data-role="topic-details"><summary><span>Topics</span><span class="mini" data-role="topic-summary">' +
+      (LOGF.topics.length ? LOGF.topics.length + ' selected' : 'Optional · grow your map') + '</span></summary>' +
+      '<div data-role="topics">' + topicPickerHTML(LOGF.courseId, LOGF.topics) + '</div></details>' +
+    '<details class="disclosure"' + (LOGF.note ? ' open' : '') + '><summary>Add a note <span class="mini">Optional</span></summary>' +
+      '<div class="field"><label class="f" for="' + p + '-note">Note</label><textarea id="' + p + '-note" data-role="note" placeholder="What did you work on?">' + esc(LOGF.note) + '</textarea></div></details>' +
+    '<div class="modal-foot log-footer"><span class="mini" data-role="echo"></span><button class="btn primary" data-act="log-save">Save session</button></div></div>';
 }
-
 function wireLog() {
-  var root = $('[data-logform="' + LOGF.p + '"]');
-  if (!root) return;
+  var root = $('#modal-box [data-logform]') || $('[data-logform]'); if (!root) return;
   var sel = logField(root, 'course');
   sel.onchange = function () {
-    LOGF.courseId = sel.value;
-    LOGF.topics = [];
-    logField(root, 'topics').innerHTML = topicPickerHTML(LOGF.courseId, LOGF.topics);
-    updateLogEcho(root);
+    LOGF.courseId = sel.value; LOGF.topics = [];
+    logField(root, 'topics').innerHTML = topicPickerHTML(LOGF.courseId, []);
+    logField(root, 'unit-label').textContent = courseUnit(courseById(sel.value)) + ' completed';
+    labelFields(root); updateLogEcho(root); logKeepDraft();
   };
-  var d = logField(root, 'date');
-  if (d) d.onchange = function () { LOGF.date = d.value; updateLogEcho(root); };
-  ['count', 'mins'].forEach(function (role) {
-    var i = logField(root, role);
-    if (i) i.addEventListener('input', function () { updateLogEcho(root); });
+  root.addEventListener('input', function (e) {
+    if (e.target.getAttribute('data-role') === 'topic-search') {
+      var q = e.target.value.toLowerCase();
+      $$('[data-act="log-topic"]', root).forEach(function (b) { b.hidden = b.textContent.toLowerCase().indexOf(q) < 0; });
+      return;
+    }
+    updateLogEcho(root); logKeepDraft();
   });
+  logField(root, 'date').onchange = function () { LOGF.date = this.value; updateLogEcho(root); logKeepDraft(); };
   root.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-      e.preventDefault();
-      ACTIONS['log-save'](e.target);          // pass the field, so the form resolves from it
+    if (e.key === 'Enter' && e.target.tagName === 'INPUT' && /^(number|text)$/.test(e.target.type) && e.target.getAttribute('data-role') !== 'newtopic') {
+      e.preventDefault(); ACTIONS['log-save'](e.target);
     }
   });
-  updateLogEcho(root);
+  labelFields(root); updateLogEcho(root);
 }
-
 function updateLogEcho(root) {
-  root = root || logRoot(null);
-  var e = logField(root, 'echo');
-  if (!e) return;
-  var sel = logField(root, 'course');
-  var c = courseById(sel ? sel.value : LOGF.courseId);
-  if (!c) { e.textContent = ''; return; }
-  var pr = progressOf(c);
-  var add = logNum(root, 'count', 0) || 0, mins = logNum(root, 'mins', 0) || 0;
-  e.innerHTML = c.totalSessions
-    ? 'After saving: <b>' + (pr.done + add) + ' / ' + c.totalSessions + '</b> sessions, <b>' + fmtMins(pr.minutes + mins) + '</b> tracked'
-    : 'After saving: <b>' + fmtMins(pr.minutes + mins) + '</b> tracked on ' + esc(c.name);
+  root = root || logRoot(null); var echo = logField(root, 'echo'); if (!echo) return;
+  var c = courseById(logField(root, 'course').value); if (!c) return;
+  var count = logNum(root, 'count', 0), mins = logNum(root, 'mins', 0), progress = progressOf(c);
+  echo.textContent = fmtMins(mins) + ' · ' + count + ' ' + courseUnits(c, count) +
+    (c.totalSessions ? ' · ' + (progress.done + count) + '/' + c.totalSessions + ' complete' : '');
+  var summary = logField(root, 'topic-summary'); if (summary) summary.textContent = LOGF.topics.length ? LOGF.topics.length + ' selected' : 'Optional · grow your map';
+  var d = logField(root, 'date'); var dl = logField(root, 'date-label');
+  if (dl && d.value) dl.textContent = d.value === today() ? 'Today' : fmtDate(d.value);
 }
-
 ACTIONS['set-num'] = function (el) {
-  var t = el.getAttribute('data-target');
-  var inp = document.querySelector('[data-num="' + t + '"]');
+  var root = logRoot(el) || document;
+  var inp = root.querySelector('[data-num="' + el.getAttribute('data-target') + '"]');
   if (inp) { inp.value = el.getAttribute('data-val'); inp.dispatchEvent(new Event('input', { bubbles: true })); }
 };
-
 ACTIONS['log-topic'] = function (el) {
-  var t = el.getAttribute('data-topic');
-  var i = LOGF.topics.indexOf(t);
+  var t = el.getAttribute('data-topic'), i = LOGF.topics.indexOf(t);
   if (i >= 0) LOGF.topics.splice(i, 1); else LOGF.topics.push(t);
-  el.classList.toggle('on');
+  el.classList.toggle('on', i < 0); el.setAttribute('aria-pressed', String(i < 0));
+  updateLogEcho(logRoot(el)); logKeepDraft();
 };
 
 /* adding a topic happens inline — a dialog here would wipe a half-filled form
@@ -178,6 +145,7 @@ ACTIONS['log-newtopic'] = function (el) {
     });
     dbSave(true);
     logField(root, 'topics').innerHTML = topicPickerHTML(c.id, LOGF.topics);
+    updateLogEcho(root); logKeepDraft();
     if (keep) {
       var again = logField(root, 'topics').querySelector('[data-act="log-newtopic"]');
       if (again) ACTIONS['log-newtopic'](again);
@@ -199,30 +167,39 @@ ACTIONS['log-save'] = function (el) {
   if (!c) { toast('Pick a course first'); return; }
 
   /* a missing field is a bug, not a reason to invent a number */
-  var count = logNum(root, 'count', 1);
-  var mins = logNum(root, 'mins', DB.profile.sessionMinutes);
+  var count = logNum(root, 'count', 0);
+  var mins = logNum(root, 'mins', 0);
   if (count === null || mins === null) { toast('Could not read the form — reopen it and try again', 4000); return; }
-  if (count <= 0 && mins <= 0) { toast('Nothing to log — add sessions or minutes'); return; }
+  if (count < 0 || count > 9999 || count % 1 || mins < 0 || mins > 1440) { toast('Use a whole number of completed units and 0–1440 minutes.'); return; }
+  if (count <= 0 && mins <= 0) { toast('Add study time or completed units.'); return; }
 
   var dateEl = logField(root, 'date'), noteEl = logField(root, 'note');
   var date = (dateEl && dateEl.value) || today();
   var note = (noteEl && noteEl.value.trim()) || '';
 
-  DB.sessions.push({
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today()) { toast('Choose today or an earlier study date.'); return; }
+  var receiptId = LOGF.receiptId;
+  var receipt = receiptId && DB.pomo && (DB.pomo.receipts || []).find(function (r) { return r.id === receiptId; });
+  var saved = {
     id: uid(), courseId: c.id, date: date, count: count, minutes: mins,
-    topics: LOGF.topics.slice(), note: note, createdAt: new Date().toISOString()
-  });
+    topics: LOGF.topics.slice(), note: note, source: receiptId ? 'focus' : 'manual', focusBlocks: receiptId ? 1 : 0, createdAt: new Date().toISOString()
+  };
+  DB.sessions.push(saved);
+  if (receiptId && typeof pomoDismissReceipt === 'function') pomoDismissReceipt(receiptId);
   DB.lastCourseId = c.id;
   dbSave(true);
 
   var pr = progressOf(c);
-  toast('Logged: ' + esc(c.name) + ' · ' + count + ' session' + (count === 1 ? '' : 's') + ' · ' + fmtMins(mins) +
-        ' · ' + fmtMins(pr.minutes) + ' total' + (c.totalSessions ? ', ' + pr.remaining + ' left' : ''));
+  toast('Saved: ' + esc(c.name) + ' · ' + count + ' ' + esc(courseUnits(c, count)) + ' · ' + fmtMins(mins), 6000, 'Undo', function () {
+    DB.sessions = DB.sessions.filter(function (s) { return s.id !== saved.id; });
+    if (receipt && DB.pomo) DB.pomo.receipts.push(receipt);
+    dbSave(true); route(); toast('Session undone');
+  });
   if (c.totalSessions && pr.remaining === 0 && c.status === 'active') {
     setTimeout(function () { askCourseFinished(c.id); }, 400);
   }
-  LOGF.topics = [];
-  if ($('#modal-root').classList.contains('on')) modalClose();
+  LOGF.topics = []; logForgetDraft();
+  if ($('#modal-root').classList.contains('on')) modalClose(true);
   route();
 };
 
@@ -243,12 +220,12 @@ ACTIONS['sess-edit'] = function (el) {
     '<div class="grid g2" style="gap:12px">' +
       '<div class="field"><label class="f">Course</label><select id="e-course">' + courseOptions(s.courseId) + '</select></div>' +
       '<div class="field"><label class="f">Date</label><input type="date" id="e-date" value="' + esc(s.date) + '"></div>' +
-      '<div class="field"><label class="f">Sessions</label>' + stepper('e-count', num(s.count, 1), 1, 0, 99) + '</div>' +
+      '<div class="field"><label class="f">Completed units</label>' + stepper('e-count', num(s.count, 0), 1, 0, 9999) + '</div>' +
       '<div class="field"><label class="f">Minutes</label>' + stepper('e-mins', num(s.minutes, 0), 5, 0, 1440) + '</div>' +
     '</div>' +
     '<div class="field"><label class="f">Topics</label><div class="chips" id="e-topics">' +
       cats.map(function (t) {
-        return '<button class="chip' + ((s.topics || []).indexOf(t) >= 0 ? ' on' : '') + '" data-act="e-topic" data-topic="' + esc(t) + '">' + esc(t) + '</button>';
+        return '<button class="chip' + ((s.topics || []).indexOf(t) >= 0 ? ' on' : '') + '" aria-pressed="' + ((s.topics || []).indexOf(t) >= 0) + '" data-act="e-topic" data-topic="' + esc(t) + '">' + esc(t) + '</button>';
       }).join('') + '</div></div>' +
     '<div class="field"><label class="f">Note</label><input type="text" id="e-note" value="' + esc(s.note || '') + '"></div>' +
     '<div class="modal-foot">' +
@@ -262,15 +239,26 @@ ACTIONS['sess-edit'] = function (el) {
       ACTIONS['e-topic'] = function (b) {
         var t = b.getAttribute('data-topic'), i = picked.indexOf(t);
         if (i >= 0) picked.splice(i, 1); else picked.push(t);
-        b.classList.toggle('on');
+        b.classList.toggle('on'); b.setAttribute('aria-pressed', String(i < 0));
+      };
+      box.querySelector('#e-course').onchange = function () {
+        var next = courseById(this.value), topics = next && next.categories || [];
+        picked = picked.filter(function (t) { return topics.indexOf(t) >= 0; });
+        box.querySelector('#e-topics').innerHTML = topics.map(function (t) {
+          var selected = picked.indexOf(t) >= 0;
+          return '<button class="chip' + (selected ? ' on' : '') + '" aria-pressed="' + selected + '" data-act="e-topic" data-topic="' + esc(t) + '">' + esc(t) + '</button>';
+        }).join('');
       };
       box.querySelector('#e-ok').onclick = function () {
+        var count = num(box.querySelector('[data-num="e-count"]').value, 0), mins = num(box.querySelector('[data-num="e-mins"]').value, 0);
+        if (count < 0 || count > 9999 || count % 1 || mins < 0 || mins > 1440) { toast('Enter valid completed units and minutes.'); return; }
         s.courseId = box.querySelector('#e-course').value;
         s.date = box.querySelector('#e-date').value || s.date;
         s.count = num(box.querySelector('[data-num="e-count"]').value, 1);
         s.minutes = num(box.querySelector('[data-num="e-mins"]').value, 0);
         s.note = box.querySelector('#e-note').value.trim();
         s.topics = picked;
+        if (typeof pomoClearSessionReceipt === 'function') pomoClearSessionReceipt(s.id);
         dbSave(true);
         modalClose();
         toast('Session updated — ' + fmtMins(s.minutes) + ' on ' + esc(courseName(s.courseId)));
@@ -281,12 +269,11 @@ ACTIONS['sess-edit'] = function (el) {
 };
 
 ACTIONS['sess-del'] = function (el) {
-  var id = el.getAttribute('data-id');
+  var id = el.getAttribute('data-id'), saved = sessionById(id); if (!saved) return;
   DB.sessions = DB.sessions.filter(function (s) { return s.id !== id; });
-  dbSave(true);
-  modalClose();
-  toast('Session deleted');
-  route();
+  if (typeof pomoClearSessionReceipt === 'function') pomoClearSessionReceipt(id);
+  dbSave(true); modalClose(); route();
+  toast('Session deleted', 8000, 'Undo', function () { DB.sessions.push(saved); dbSave(true); route(); });
 };
 
 function sessionRowsHTML(list, opts) {
@@ -299,7 +286,7 @@ function sessionRowsHTML(list, opts) {
       '<div style="min-width:0;flex:1 1 auto">' +
         '<div style="font-weight:600">' + esc(c ? c.name : 'Deleted course') +
           (opts.showDate === false ? '' : ' <span class="mini">· ' + fmtShort(s.date) + '</span>') + '</div>' +
-        '<div class="mini">' + num(s.count, 0) + ' session' + (num(s.count, 0) === 1 ? '' : 's') + ' · ' + fmtMins(s.minutes) +
+        '<div class="mini">' + num(s.count, 0) + ' ' + esc(courseUnits(c, num(s.count, 0))) + (s.source === 'focus' ? ' · focus block' : '') + ' · ' + fmtMins(s.minutes) +
           ((s.topics && s.topics.length) ? ' · ' + s.topics.map(esc).join(', ') : '') +
           (s.note ? ' · ' + esc(s.note) : '') + '</div>' +
       '</div>' +

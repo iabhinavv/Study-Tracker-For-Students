@@ -94,13 +94,65 @@ update the repo copy.
 
 ---
 
+## Interface update — November 2026
+
+Home puts today's goal and the next course action first. The three most relevant
+active courses have Start focus, Open course and Log controls. Today's activity
+comes next, followed by one seven-day chart. The Statistics page retains its
+existing charts, calculations and layout.
+
+The quick-log dialog has a fixed heading and Save footer. Date defaults to today;
+date changes, searchable topics and notes expand when needed. An unfinished log
+is retained in this browser, including after a reload, and resumes from the Log
+button. Opening Log for a specific course or date starts in that context. Drafts
+are browser-local and are not included in study-data exports. Saving clears the
+draft and offers Undo.
+
+Courses have searchable, sortable compact cards. Details expands materials and
+topics; Manage contains editing and course status actions. Completed and Dropped
+lists start collapsed. A course can name its progress units (lectures, chapters,
+exercises, etc.). Existing course records default to the label "units"; historical
+counts and minutes are preserved.
+
+Focus blocks measure study time, independently of completed course units. Each
+new automatic timer entry has zero completed units, even if an older timer
+configuration enabled counting each block as a session. A persistent completion
+receipt on Home lets you review completed units and topics, or record the time
+when automatic logging is off. Existing timer entries are not rewritten. Choose
+a course before starting a focus block. Legacy countAsSession configuration is
+kept readable for compatibility but no longer advances syllabus progress.
+
+The Brain Map keeps its spinning wheel and adds course filters and a searchable
+List view with full names and keyboard-accessible detail buttons. Rotation pauses
+while selecting or dragging, and follows the device's reduced-motion preference.
+Canvas labels fit the available width; the full name is available in List and
+node details.
+
+Paper mode uses warm ivory and workshop green; blueprint mode uses deep navy
+and a restrained illuminated accent. Both preserve the book serif and text-only
+controls, with softly rounded panels (12px) and buttons/fields (7px). Dialogs keep keyboard focus inside, return it on close, and keep their
+actions above the visible viewport. Controls have larger touch targets on desktop
+and mobile. Calendar dates are labeled buttons with distinct today/selection
+states. Resource filters collapse, and save/backup status appears in More and the
+desktop sidebar.
+
+Development regression checks (optional Node.js; no package installation):
+
+```bash
+node tests/ui-regressions.cjs
+```
+
+The application still builds with `python3 build.py` and runs without Node.js.
+
+---
+
 ## 2. The pages
 
 | Page | What it's for |
 |---|---|
-| **Dashboard** | Today: goal ring, streak and totals, then the same numbers drawn — a two-week bar chart, a time-by-course donut with legend, and a weekly trend line — plus the quick-log form, today's sessions, a 30-day strip, deadline warnings and every course's progress bar. |
+| **Dashboard** | Today’s goal, week/streak summary, course actions, timer completion reviews, today’s activity and a seven-day chart. |
 | **Log & Calendar** | Month grid (colour = minutes studied, dots = which courses), click a day to see/add/edit its sessions, a GitHub-style year heatmap, and a **month-by-month table of every month you have ever studied**. |
-| **Classroom** | Your courses. Class/playlist link, progress, topics, deadline, and the completed/extend/drop decision. Add, edit, remove — nothing is fixed to the CSV. |
+| **Courses** | Your courses. Class/playlist link, progress, topics, deadline, and the completed/extend/drop decision. Add, edit, remove — nothing is fixed to the CSV. |
 | **Resources** | Books, PDFs, playlists, sheets, folders — on the web, in OneDrive/Drive/Dropbox, or a path on this machine. Filter by course, type, status; cycle *to read → in progress → finished*. |
 | **Notebooks** | Links to your notes wherever they live: Obsidian, Notion, OneNote, Evernote, Apple Notes, Logseq, GoodNotes, Google Keep, or a local folder. |
 | **Brain Map** | The wheel of subjects and topics around a centre pivot (§5). |
@@ -121,7 +173,7 @@ serif throughout.
 
 Two themes, switched with the button under the nav or <kbd>T</kbd> (remembered):
 
-- **paper** (default) — whiteprint: dark ink and indigo on a pale sheet;
+- **paper** (default) — warm ivory, dark ink and workshop green;
 - **blueprint** — the classic cyanotype: pale lines on deep blue.
 
 Deliberately there are **no emoji and no icon glyphs anywhere**. Controls are
@@ -137,7 +189,7 @@ timer, which is the one control that belongs in every view.
 
 Below 900px the app becomes a phone app: the left sidebar is replaced by a
 **bottom tab bar** within thumb reach — Home, Calendar, a raised **Log** button
-in the middle, Map, and **More** (which opens a sheet for Classroom,
+in the middle, Map, and **More** (which opens a sheet for Courses,
 Statistics, Resources, Notebooks, Data & Backup, and the theme switch). The top
 bar shrinks to the current page name plus the timer. Dialogs — the log form, the
 edit sheet, More — slide up from the bottom as sheets with a sticky **Close**,
@@ -160,27 +212,24 @@ One logged session holds:
 |---|---|
 | Course | required |
 | Date | defaults to today; any past date works |
-| Sessions / lectures | the *count* — how many lectures/chapters you finished (preset chips 1/2/3/5) |
-| Minutes | the *time* (chips 15/25/45/60/90/120) |
+| Completed units | lectures/chapters finished (presets 0/1/2; custom number via the stepper) |
+| Minutes | study time (presets 25/45/60; any value can be typed) |
 | Topics | any of the course's topics; drives the brain map |
 | Note | optional, e.g. "finished Ch.4 problems" |
 
-Two numbers on purpose: **count** drives course progress (`18 / 90 sessions`)
+Two numbers on purpose: **count** drives course progress (`18 / 90 units`)
 and **minutes** drive all the time statistics. A course with
 `Total sessions = 0` is untracked — you just log time against it.
 
-Both number fields have big minus/plus steppers and preset chips, so a normal
-entry is two clicks and Enter. Every session can be edited or deleted later
+Both number fields have large minus/plus steppers and preset chips. Topics,
+notes and a different date expand only when needed. Every session can be edited or deleted later
 (Edit on any session row, on the Dashboard or in the day panel of the
 calendar). Adding a topic mid-entry happens inline — it never opens a dialog
 over a half-filled form.
 
-The form can be on screen twice (inline on the Dashboard, and in the pop-up
-opened by <kbd>L</kbd> / the calendar / the map). It always saves the fields you
-are actually looking at: the form is resolved from the button you clicked, and
-if it cannot be resolved the save is refused with a message rather than writing
-default values. Check the toast after saving — it repeats the minutes and the
-course's new total.
+The log opens in a dialog from the Log button, a course, the calendar or the
+map. It always reads the fields in that dialog, including when Save is in its
+fixed footer. The confirmation repeats the course, minutes and completed units.
 
 **Already partway through a course?** Set *"Already finished before today"* on
 the course. Progress then starts where you actually are, without inventing
@@ -261,8 +310,8 @@ The timer lives in the top bar on every page; ⚙ opens the panel.
   up and tells you.
 - Chime (WebAudio) + a desktop notification if you grant permission.
 - **Working on** — pick a course and each finished focus block is logged
-  automatically: its minutes always, and +1 session if *"count each block as 1
-  session"* is on. Turn auto-log off and you get a *Log it* button on the
+  automatically: its minutes always, and zero completed syllabus units. Review the completion receipt to confirm
+  completed lectures or chapters and topics. Turn auto-log off and you get a *Log it* button on the
   finish toast instead.
 
 ---
@@ -298,7 +347,7 @@ On top of that, the Data page gives you:
 
 ## 8. CSV import format
 
-**Classroom → Import CSV** (or Data & Backup → Import courses from CSV) takes a
+**Courses → Import CSV** (or Data & Backup → Import courses from CSV) takes a
 file or pasted rows. The only required column is **Subject** (or `Course` /
 `Name`). The header row may sit anywhere near the top, and leading empty
 columns are fine — the CSV in this folder has both.
@@ -451,7 +500,7 @@ desktop layout, your browser is probably requesting the desktop site.
 the page, and notifications need permission — click Start once in the panel.
 
 **Two courses look duplicated after an import.** Names must match exactly for
-the update path to kick in; delete the stray one (Classroom → 🗑) and re-import.
+the update path to kick in; remove the stray one (Courses → Manage → Remove course) and re-import.
 
 ---
 

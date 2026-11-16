@@ -95,7 +95,7 @@ function blankDB() {
     resources: [],
     notebooks: [],
     pomo: null,
-    pomoCfg: { focus: 25, short: 5, long: 15, cycle: 4, autoLog: true, countAsSession: true, sound: true },
+    pomoCfg: { focus: 25, short: 5, long: 15, cycle: 4, autoLog: true, countAsSession: false, sound: true },
     lastCourseId: null
   };
 }
@@ -216,6 +216,7 @@ function newCourse(o) {
     link: o.link || '',
     extraLinks: o.extraLinks || [],
     categories: o.categories || [],
+    unit: o.unit || 'lectures',
     totalSessions: num(o.totalSessions, 0),
     doneOffset: num(o.doneOffset, 0),   // progress that happened before tracking
     deadline: o.deadline || '',
@@ -242,6 +243,8 @@ function tone(hex) {
   return 'rgb(' + mix((v >> 16) & 255, 226) + ',' + mix((v >> 8) & 255, 238) + ',' + mix(v & 255, 255) + ')';
 }
 function courseColor(id) { var c = courseById(id); return tone(c ? c.color : '#8892b0'); }
+function courseUnit(c) { return (c && c.unit) || 'units'; }
+function courseUnits(c, n) { var unit = courseUnit(c); return n === 1 && /^(units|lectures|chapters|exercises|lessons|sessions)$/.test(unit) ? unit.slice(0, -1) : unit; }
 function activeCourses() { return DB.courses.filter(function (c) { return c.status === 'active'; }); }
 
 /* progress = pre-existing offset + everything logged since */
@@ -360,6 +363,8 @@ function toast(msg, ms, actionLabel, actionFn) {
   var wrap = $('#toasts');
   var t = document.createElement('div');
   t.className = 'toast';
+  t.setAttribute('role', 'status');
+  t.setAttribute('aria-live', 'polite');
   t.innerHTML = '<span>' + msg + '</span>';
   if (actionLabel) {
     var b = document.createElement('button');
@@ -372,26 +377,83 @@ function toast(msg, ms, actionLabel, actionFn) {
   setTimeout(function () { t.remove(); }, ms || 2600);
 }
 
-/* modal: html string in, optional onMount(box); Esc / scrim closes */
+/* Every dialog uses the same fixed header, scrollable body and action footer. */
+var MODAL_RETURN = null;
+function labelFields(root) {
+  $$('label.f', root).forEach(function (label) {
+    if (label.htmlFor) return;
+    var field = label.closest('.field') || label.parentElement;
+    var input = field.querySelector('input:not([type=hidden]),select,textarea');
+    if (!input) return;
+    if (!input.id) input.id = 'field-' + uid();
+    label.htmlFor = input.id;
+    var step = input.closest('.stepper');
+    if (step) $$('button', step).forEach(function (b) {
+      b.setAttribute('aria-label', (num(b.getAttribute('data-by')) < 0 ? 'Decrease ' : 'Increase ') + label.textContent.trim());
+    });
+  });
+}
 function modal(html, onMount, wide) {
   var root = $('#modal-root'), box = $('#modal-box');
+  if (!root.classList.contains('on')) MODAL_RETURN = document.activeElement;
+  $('#pomo-panel').classList.add('hidden');
   box.className = 'modal' + (wide ? ' wide' : '');
   box.innerHTML = html;
-  if (isNarrow() && !box.querySelector('.modal-foot')) {
-    var x = document.createElement('button');
-    x.type = 'button'; x.className = 'sheet-x'; x.setAttribute('data-act', 'modal-close');
-    x.setAttribute('aria-label', 'Close'); x.textContent = 'Close';
-    box.insertBefore(x, box.firstChild);
-  }
+  var title = box.querySelector('h2');
+  var head = document.createElement('header'); head.className = 'modal-head';
+  if (!title) { title = document.createElement('h2'); title.textContent = 'Study Tracker'; }
+  title.id = 'modal-title'; title.tabIndex = -1;
+  head.appendChild(title);
+  var close = document.createElement('button'); close.className = 'btn sm'; close.type = 'button';
+  close.setAttribute('data-act', 'modal-close'); close.textContent = 'Close'; head.appendChild(close);
+  var footer = box.querySelector('.modal-foot');
+  if (footer) footer.remove();
+  var body = document.createElement('div'); body.className = 'modal-body';
+  while (box.firstChild) body.appendChild(box.firstChild);
+  box.appendChild(head); box.appendChild(body); if (footer) box.appendChild(footer);
+  box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true');
+  box.setAttribute('aria-labelledby', 'modal-title');
   root.classList.add('on');
+  ['#app', '#tabbar', '#pomo-panel'].forEach(function (sel) { $(sel).inert = true; });
+  document.documentElement.classList.add('dialog-open');
   if (onMount) onMount(box);
-  var first = box.querySelector('input,select,textarea,button');
-  if (first && first.focus && !isNarrow()) setTimeout(function () { first.focus(); }, 30);
+  labelFields(box);
+  title.focus({ preventScroll: true });
 }
-function modalClose() {
-  $('#modal-root').classList.remove('on');
-  $('#modal-box').innerHTML = '';
+function modalClose(discardDraft) {
+  var root = $('#modal-root');
+  if (!root.classList.contains('on')) return;
+  if (!discardDraft && typeof logKeepDraft === 'function') logKeepDraft();
+  root.classList.remove('on'); $('#modal-box').innerHTML = '';
+  ['#app', '#tabbar', '#pomo-panel'].forEach(function (sel) { $(sel).inert = false; });
+  document.documentElement.classList.remove('dialog-open');
+  var target = MODAL_RETURN && MODAL_RETURN.isConnected ? MODAL_RETURN : (window.matchMedia('(max-width: 900px)').matches ? $('#tabbar [data-act="quick-log"]') : $('#view'));
+  if (target) target.focus({ preventScroll: true });
 }
+document.addEventListener('keydown', function (e) {
+  if (!$('#modal-root').classList.contains('on')) return;
+  if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); modalClose(); return; }
+  if (e.key !== 'Tab') return;
+  var items = $$('button,a[href],input,select,textarea,summary,[tabindex="0"]', $('#modal-box'))
+    .filter(function (el) { var closed = el.closest('details:not([open])');
+      return !el.disabled && (!closed || el.closest('summary') === closed.querySelector('summary')) && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden'; });
+  if (!items.length) { e.preventDefault(); return; }
+  var first = items[0], last = items[items.length - 1], active = document.activeElement;
+  if (!items.includes(active) || (!e.shiftKey && active === last) || (e.shiftKey && active === first)) {
+    e.preventDefault(); (e.shiftKey ? last : first).focus();
+  }
+});
+function visualViewportSize() {
+  var vv = window.visualViewport;
+  document.documentElement.style.setProperty('--visual-height', (vv ? vv.height : window.innerHeight) + 'px');
+  document.documentElement.style.setProperty('--visual-top', (vv ? vv.offsetTop : 0) + 'px');
+}
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', visualViewportSize);
+  window.visualViewport.addEventListener('scroll', visualViewportSize);
+}
+window.addEventListener('resize', visualViewportSize);
+visualViewportSize();
 function confirmBox(title, body, okLabel, onOk) {
   modal(
     '<h2>' + esc(title) + '</h2><p class="sub">' + body + '</p>' +

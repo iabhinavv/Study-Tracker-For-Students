@@ -44,129 +44,58 @@ function deadlineAlerts() {
   return out.sort(function (a, b) { return a.dl - b.dl; });
 }
 
+function courseActionsHTML(c) {
+  return '<div class="continue-actions"><button class="btn primary" data-act="course-focus" data-id="' + c.id + '">Start focus</button>' +
+    (c.link ? '<a class="btn" href="' + esc(c.link) + '" target="_blank" rel="noopener">Open course</a>' : '') +
+    '<button class="btn ghost" data-act="quick-log" data-course="' + c.id + '">Log</button></div>';
+}
 function renderDashboard(v) {
-  var t = today();
-  var todayList = DB.sessions.filter(function (s) { return s.date === t; });
-  var weekList = sessionsInRange(shiftDays(t, -6), t);
-  var monthList = sessionsInRange(shiftDays(t, -29), t);
-  var st = streaks();
-  var goal = DB.profile.dailyGoalMin || 0;
-  var totalMins = sumMins(DB.sessions);
-  var alerts = deadlineAlerts();
+  var t = today(), todayList = sessionsInRange(t, t), weekList = sessionsInRange(shiftDays(t, -6), t);
+  var goal = DB.profile.dailyGoalMin || 0, minutes = sumMins(todayList), st = streaks();
   var hour = new Date().getHours();
   var greet = hour < 5 ? 'Still up' : hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-
-  var html = '';
-  html += '<h1>' + greet + (DB.profile.name ? ', ' + esc(DB.profile.name) : '') + '</h1>';
-  html += '<p class="sub">' + fmtDate(t) + ' · ' + activeCourses().length + ' active course' +
-          (activeCourses().length === 1 ? '' : 's') + '</p>';
-
-  /* deadline nudges */
-  if (alerts.length) {
-    html += '<div class="card" style="border-left:3px solid var(--warn);margin-bottom:16px">';
-    html += '<h3 style="color:var(--warn)">Deadlines</h3>';
-    alerts.forEach(function (a) {
-      var over = a.dl < 0;
-      html += '<div class="row" style="padding:7px 0;border-bottom:1px dashed var(--rule)">' +
-        '<b>' + esc(a.course.name) + '</b>' +
-        '<span class="pill ' + (over ? 'bad' : 'warn') + '">' +
-          (over ? Math.abs(a.dl) + ' day' + (Math.abs(a.dl) === 1 ? '' : 's') + ' overdue' :
-           a.dl === 0 ? 'due today' : a.dl + ' day' + (a.dl === 1 ? '' : 's') + ' left') + '</span>' +
-        '<span class="mini">' + progressOf(a.course).remaining + ' sessions remaining</span>' +
-        '<span class="spacer"></span>' +
-        '<button class="btn sm" data-act="course-deadline-decide" data-id="' + a.course.id + '">Decide</button>' +
-      '</div>';
-    });
-    html += '</div>';
-  }
-
-  /* the readings */
-  html += '<div class="grid g4">';
-  html += '<div class="card row span2" style="gap:14px">' + goalRingHTML(sumMins(todayList), goal) +
-    '<div class="kpi"><span class="k">Today</span><span class="v">' + fmtMins(sumMins(todayList)) + '</span>' +
-    '<span class="n">' + sumCount(todayList) + ' sessions' + (goal ? ' · goal ' + fmtMins(goal) : '') + '</span></div></div>';
-  html += '<div class="card kpi"><span class="k">Last 7 days</span><span class="v">' + fmtMins(sumMins(weekList)) + '</span>' +
-    '<span class="n">' + sumCount(weekList) + ' sessions · ' + Math.round(sumMins(weekList) / 7) + 'm/day</span></div>';
-  html += '<div class="card kpi"><span class="k">Streak</span><span class="v">' + st.current +
-    ' <span style="font-size:15px;font-weight:400;color:var(--ink-3)">' + (st.current === 1 ? 'day' : 'days') + '</span></span>' +
-    '<span class="n">longest ' + st.longest + ' · ' + st.activeDays + ' days logged</span></div>';
-  html += '<div class="card kpi"><span class="k">All time</span><span class="v">' + fmtMins(totalMins) + '</span>' +
-    '<span class="n">' + sumCount(DB.sessions) + ' sessions logged</span></div>';
-  html += '</div>';
-
-  /* the same readings, drawn */
-  if (DB.sessions.length) {
-    var dayMap = byDayMap();
-    var narrow = isNarrow();
-    var d14 = [];
-    for (var i = (narrow ? 6 : 13); i >= 0; i--) {
-      var ds = shiftDays(t, -i);
-      d14.push({ label: fmtShort(ds), v: dayMap[ds] ? dayMap[ds].minutes : 0 });
-    }
-    var courseSlices = timeByCourse(monthList.length ? monthList : DB.sessions, 6);
-    var wk = [];
-    for (var w = 7; w >= 0; w--) {
-      var end = shiftDays(t, -w * 7), start = shiftDays(end, -6);
-      wk.push({ label: fmtShort(start), v: sumMins(sessionsInRange(start, end)) });
-    }
-
-    html += '<div class="sechead"><h2>' + (narrow ? 'The last week' : 'The last two weeks') + '</h2>' +
-      '<span class="mini">minutes per day</span></div>';
-    html += '<div class="card">' + barsSVG(d14, { fmt: fmtMins, h: narrow ? 120 : 150, w: narrow ? 360 : 720 }) + '</div>';
-
-    html += '<div class="sechead"><h2>Balance and trend</h2>' +
-      '<span class="mini">share by course · minutes per week</span>' +
-      '<span class="spacer"></span><a class="mini" href="#/stats">Full statistics</a></div>';
-    html += '<div class="split charts">';
-    html += '<div class="card"><h3>Time by course</h3>' +
-      donutSVG(courseSlices, { fmt: fmtMins, centreNote: monthList.length ? 'last 30 days' : 'all time', size: narrow ? 190 : 205 }) +
-      legendHTML(courseSlices, { fmt: fmtMins }) + '</div>';
-    html += '<div class="card"><h3>Weekly trend</h3>' + lineSVG(wk, { fmt: fmtMins, h: narrow ? 130 : 165, w: narrow ? 360 : 720 }) +
-      '<div class="hint">Each point is one week of tracked minutes.</div></div>';
-    html += '</div>';
-  }
-
-  /* log + today */
-  html += '<div class="sechead"><h2>Log today</h2><span class="spacer"></span>' +
-    '<a class="mini" href="#/calendar">Open calendar</a></div>';
-  html += '<div class="split log">';
-  html += logCardHTML();
-  html += '<div class="card"><h3>Today</h3>' +
-    sessionRowsHTML(todayList.slice().reverse(), { showDate: false }) +
-    '<h3 style="margin-top:18px">Last 30 days</h3>' + miniStripHTML(30) + '</div>';
-  html += '</div>';
-
-  /* course progress */
-  var act = activeCourses().slice().sort(function (a, b) {
-    var da = a.deadline ? daysLeft(a) : 9999, db2 = b.deadline ? daysLeft(b) : 9999;
-    return da - db2;
+  var h = '<h1>' + greet + (DB.profile.name ? ', ' + esc(DB.profile.name) : '') + '</h1>' +
+    '<p class="sub">' + fmtDate(t) + ' · Make room for a little progress.</p>';
+  h += '<div class="home-overview"><div class="card home-goal">' + (goal ? goalRingHTML(minutes, goal, 90) : '') +
+    '<div class="kpi"><span class="k">Study time today</span><span class="v">' + fmtMins(minutes) + '</span>' +
+    '<span class="n">' + (goal ? fmtMins(Math.max(0, goal - minutes)) + ' to your ' + fmtMins(goal) + ' goal' : 'Every bit counts') +
+    '</span><span class="mini">' + todayList.length + ' study entries · ' + todayList.filter(function (s) { return s.source === 'focus'; }).length + ' focus blocks</span></div></div>' +
+    '<div class="home-readings"><div class="card kpi"><span class="k">This week</span><span class="v">' + fmtMins(sumMins(weekList)) +
+    '</span><span class="n">Last 7 days</span></div><div class="card kpi"><span class="k">Study streak</span><span class="v">' + st.current +
+    ' <span class="mini">days</span></span><span class="n">Best ' + st.longest + ' days</span></div></div></div>';
+  if (typeof pomoReceiptsHTML === 'function') h += pomoReceiptsHTML();
+  var courses = activeCourses().slice().sort(function (a, b) {
+    if (a.id === DB.lastCourseId) return -1; if (b.id === DB.lastCourseId) return 1;
+    var da = a.deadline ? daysLeft(a) : Infinity, db = b.deadline ? daysLeft(b) : Infinity;
+    return da - db || progressOf(b).last.localeCompare(progressOf(a).last);
   });
-  html += '<div class="sechead"><h2>Course progress</h2><span class="spacer"></span>' +
-          '<a class="mini" href="#/classroom">Manage courses</a></div>';
-  if (!act.length) {
-    html += '<div class="empty">No active courses. <a href="#/classroom">Add one</a></div>';
-  } else {
-    html += '<div class="grid g2">';
-    act.forEach(function (c) {
-      var p = progressOf(c), dl = daysLeft(c), pace = paceNeeded(c);
-      html += '<div class="card course-card">' +
-        '<div class="cardhead"><span class="dot" style="background:' + courseColor(c.id) + '"></span>' +
-          '<span class="ttl">' + esc(c.name) + '</span>' +
-          '<span class="mini">' + (c.totalSessions ? p.done + '/' + c.totalSessions : p.done + ' done') + '</span></div>' +
-        '<div class="bar"><i style="width:' + p.pct + '%"></i></div>' +
-        '<div class="row tight mini">' +
-          '<span>' + fmtMins(p.minutes) + ' logged</span>' +
-          (c.totalSessions ? '<span>· ' + p.remaining + ' left</span>' : '') +
-          (dl !== null ? '<span class="pill ' + (dl < 0 ? 'bad' : dl <= 7 ? 'warn' : '') + '">Due ' + fmtShortY(c.deadline) +
-            ' (' + (dl < 0 ? Math.abs(dl) + 'd over' : dl + 'd') + ')</span>' : '') +
-          (pace && pace !== Infinity ? '<span class="pill">' + pace.toFixed(1) + ' sess/day needed</span>' : '') +
-        '</div>' +
-        (c.link ? '<div class="linkline"><a href="' + esc(c.link) + '" target="_blank" rel="noopener">Open course</a></div>' : '') +
-      '</div>';
-    });
-    html += '</div>';
+  h += '<div class="sechead"><h2>Continue studying</h2><span class="spacer"></span><a href="#/classroom">All courses</a></div>';
+  if (!courses.length) h += '<div class="empty">Your next chapter starts here. <a class="btn primary" href="#/classroom">Add a course</a></div>';
+  else {
+    h += '<div class="grid g3">' + courses.slice(0, 3).map(function (c) {
+      var p = progressOf(c);
+      return '<div class="card course-card continue-card"><div class="cardhead"><span class="dot" style="background:' + courseColor(c.id) + '"></span><h3 class="ttl" style="text-transform:none;letter-spacing:0;color:var(--ink);margin:0">' + esc(c.name) + '</h3></div>' +
+        '<div class="mini">' + p.done + (c.totalSessions ? ' / ' + c.totalSessions : '') + ' ' + esc(courseUnit(c)) + ' completed</div>' +
+        (c.totalSessions ? '<div class="bar" role="progressbar" aria-label="' + esc(c.name) + ' progress" aria-valuenow="' + p.pct + '" aria-valuemin="0" aria-valuemax="100"><i style="width:' + p.pct + '%"></i></div>' : '') +
+        '<div class="mini">' + (c.deadline ? 'Due ' + fmtShortY(c.deadline) : p.last ? 'Last studied ' + fmtShort(p.last) : 'Ready when you are') + '</div>' + courseActionsHTML(c) + '</div>';
+    }).join('') + '</div>';
   }
-
-  v.innerHTML = html;
-  wireLog();
+  var alerts = deadlineAlerts();
+  if (alerts.length) {
+    h += '<div class="sechead"><h2>Upcoming deadlines</h2></div><div class="card">' + alerts.map(function (a) {
+      return '<div class="row receipt"><b>' + esc(a.course.name) + '</b><span class="pill ' + (a.dl < 0 ? 'bad' : 'warn') + '">' +
+        (a.dl < 0 ? Math.abs(a.dl) + ' days overdue' : a.dl === 0 ? 'Due today' : a.dl + ' days left') +
+        '</span><span class="spacer"></span><button class="btn sm" data-act="course-deadline-decide" data-id="' + a.course.id + '">Review</button></div>';
+    }).join('') + '</div>';
+  }
+  h += '<div class="sechead"><h2>Today’s activity</h2><span class="spacer"></span><button class="btn sm" data-act="quick-log">Log a session</button></div>' +
+    '<div class="card activity-list">' + (todayList.length ? sessionRowsHTML(todayList.slice().reverse(), { showDate: false }) :
+      '<div class="empty">A fresh page. Start a focus block or record what you have studied.</div>') + '</div>';
+  h += '<div class="sechead"><h2>Your week</h2><span class="spacer"></span><a href="#/stats">Full statistics</a></div>';
+  if (DB.sessions.length) {
+    var dm = byDayMap(), data = [];
+    for (var i = 6; i >= 0; i--) { var d = shiftDays(t, -i); data.push({label: fmtShort(d), v: dm[d] ? dm[d].minutes : 0}); }
+    h += '<div class="card">' + barsSVG(data, {fmt: fmtMins, w: isNarrow() ? 360 : 720, h: isNarrow() ? 120 : 150}) + '</div>';
+  } else h += '<div class="card mini">Your weekly study chart will appear after your first entry.</div>';
+  v.innerHTML = h;
 }

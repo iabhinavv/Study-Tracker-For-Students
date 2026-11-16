@@ -29,7 +29,7 @@
     <nav id="nav">
       <a href="#/dashboard">Dashboard</a>
       <a href="#/calendar">Log &amp; Calendar</a>
-      <a href="#/classroom">Classroom</a>
+      <a href="#/classroom">Courses</a>
       <a href="#/resources">Resources</a>
       <a href="#/notebooks">Notebooks</a>
       <a href="#/map">Brain Map</a>
@@ -48,13 +48,13 @@
       <div id="topstats"></div>
       <div id="pomo-mini"></div>
     </header>
-    <main id="view"></main>
+    <main id="view" tabindex="-1"></main>
   </div>
 </div>
 
 <div id="pomo-panel" class="hidden"></div>
 <div id="modal-root"><div class="scrim"></div><div class="modal" id="modal-box"></div></div>
-<div id="toasts"></div>
+<div id="toasts" aria-label="Notifications"></div>
 <nav id="tabbar" aria-label="Sections"></nav>
 
 <!-- Your data, committed with the repo. A <script> tag (not fetch) so it also

@@ -3,7 +3,7 @@
    Google Drive, or a path on this machine.
    ========================================================================== */
 
-var RES = { q: '', courseId: '', type: '', status: '' };
+var RES = { q: '', courseId: '', type: '', status: '', filtersOpen: false };
 
 /* a local path (or file://) needs different handling from a normal URL */
 function isLocalPath(u) {
@@ -44,25 +44,24 @@ function renderResources(v) {
     '<p class="sub">Books, PDFs, playlists and folders — on the web, in OneDrive/Drive, or on this machine.</p></div>' +
     '<span class="spacer"></span><button class="btn primary" data-act="res-add">Add resource</button></div>';
 
-  h += '<div class="card" style="margin-bottom:14px"><div class="row">' +
-    '<input type="text" id="res-q" class="filter" placeholder="Search title, link, notes…" value="' + esc(RES.q) + '">' +
-    '<select id="res-course" class="filter">' + courseOptions(RES.courseId, true) + '</select>' +
-    '<select id="res-type" class="filter"><option value="">All types</option>' +
-      Object.keys(RES_TYPES).map(function (k) {
-        return '<option value="' + k + '"' + (RES.type === k ? ' selected' : '') + '>' + RES_TYPES[k].label + '</option>';
-      }).join('') + '</select>' +
-    '<select id="res-status" class="filter">' +
-      ['', 'todo', 'reading', 'done'].map(function (s) {
-        return '<option value="' + s + '"' + (RES.status === s ? ' selected' : '') + '>' +
-          (s === '' ? 'Any status' : s === 'todo' ? 'To read' : s === 'reading' ? 'In progress' : 'Finished') + '</option>';
-      }).join('') + '</select>' +
-    '<span class="spacer"></span><span class="pill"><b>' + list.length + '</b> of ' + DB.resources.length + '</span>' +
-    '</div></div>';
+  var active = [RES.courseId, RES.type, RES.status].filter(Boolean).length;
+  h += '<div class="card filter-panel"><label class="f" for="res-q">Search resources</label>' +
+    '<div class="row"><input type="search" id="res-q" placeholder="Search title, link or notes…" value="' + esc(RES.q) + '">' +
+    '<span class="pill">' + list.length + ' of ' + DB.resources.length + '</span>' +
+    (active || RES.q ? '<button class="btn ghost" data-act="res-reset">Clear filters</button>' : '') + '</div>' +
+    '<details class="disclosure" id="res-filters"' + (RES.filtersOpen ? ' open' : '') + '><summary>Filters<span class="mini">' +
+    (active ? active + ' active' : 'Course, type & status') + '</span></summary><div class="filter-fields">' +
+    '<div class="field"><label class="f" for="res-course">Course</label><select id="res-course">' + courseOptions(RES.courseId, true) + '</select></div>' +
+    '<div class="field"><label class="f" for="res-type">Type</label><select id="res-type"><option value="">All types</option>' +
+    Object.keys(RES_TYPES).map(function (k) { return '<option value="' + k + '"' + (RES.type === k ? ' selected' : '') + '>' + RES_TYPES[k].label + '</option>'; }).join('') + '</select></div>' +
+    '<div class="field"><label class="f" for="res-status">Status</label><select id="res-status">' +
+    [['','Any status'],['todo','To read'],['reading','In progress'],['done','Finished']].map(function (o) { return '<option value="' + o[0] + '"' + (RES.status === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div></div></details>' +
+    (active ? '<p class="hint">' + [RES.courseId ? esc(courseName(RES.courseId)) : '', RES.type ? esc(RES_TYPES[RES.type].label) : '', RES.status ? (RES.status === 'todo' ? 'To read' : RES.status === 'reading' ? 'In progress' : 'Finished') : ''].filter(Boolean).join(' · ') + '</p>' : '') + '</div>';
 
   if (!DB.resources.length) {
     h += '<div class="empty">Nothing here yet.<br><br><button class="btn primary" data-act="res-add">Add the first resource</button></div>';
   } else if (!list.length) {
-    h += '<div class="empty">Nothing matches that filter.</div>';
+    h += '<div class="empty">No resources match. <button class="btn" data-act="res-reset">Clear search & filters</button></div>';
   } else {
     h += '<div class="grid g2">';
     list.forEach(function (r) {
@@ -94,13 +93,17 @@ function renderResources(v) {
 
   v.innerHTML = h;
   var qi = $('#res-q');
-  qi.oninput = function () { RES.q = qi.value; };
-  qi.onchange = function () { route(); };
-  qi.onkeydown = function (e) { if (e.key === 'Enter') route(); };
+  qi.oninput = function () {
+    var pos = this.selectionStart; RES.q = this.value; renderResources(v);
+    var next = $('#res-q'); next.focus({preventScroll:true}); next.setSelectionRange(pos, pos);
+  };
+  $('#res-filters').ontoggle = function () { RES.filtersOpen = this.open; };
   $('#res-course').onchange = function () { RES.courseId = this.value; route(); };
   $('#res-type').onchange = function () { RES.type = this.value; route(); };
   $('#res-status').onchange = function () { RES.status = this.value; route(); };
 }
+
+ACTIONS['res-reset'] = function () { RES.q = ''; RES.courseId = ''; RES.type = ''; RES.status = ''; route(); };
 
 function resById(id) { return DB.resources.filter(function (r) { return r.id === id; })[0]; }
 

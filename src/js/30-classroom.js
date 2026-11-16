@@ -5,93 +5,57 @@
    met) the app asks the one question that matters: done, extend, or drop?
    ========================================================================== */
 
+var COURSE_VIEW = { q: '', sort: 'recent' };
 function renderClassroom(v) {
-  var groups = [
-    ['Active', DB.courses.filter(function (c) { return c.status === 'active'; })],
-    ['Completed', DB.courses.filter(function (c) { return c.status === 'completed'; })],
-    ['Dropped', DB.courses.filter(function (c) { return c.status === 'dropped'; })]
-  ];
-
-  var html = '<div class="row"><div><h1>Classroom</h1>' +
-    '<p class="sub">Every course you are taking, with its class link, topics and deadline.</p></div>' +
-    '<span class="spacer"></span>' +
-    '<button class="btn primary" data-act="course-add">Add course</button>' +
-    '<button class="btn" data-act="csv-import-open">Import CSV</button></div>';
-
-  if (!DB.courses.length) {
-    html += '<div class="empty">No courses yet.<br><br>' +
-      '<button class="btn primary" data-act="course-add">Add your first course</button> ' +
-      '<button class="btn" data-act="seed-starter">Use the starter list</button></div>';
-  }
-
-  groups.forEach(function (g) {
-    if (!g[1].length) return;
-    html += '<div class="sechead"><h2>' + g[0] + '</h2><span class="pill">' + g[1].length + '</span></div>';
-    html += '<div class="grid g2">';
-    g[1].forEach(function (c) { html += courseCardHTML(c); });
-    html += '</div>';
+  var q = COURSE_VIEW.q.toLowerCase();
+  var filtered = DB.courses.filter(function (c) { return c.name.toLowerCase().indexOf(q) >= 0; }).sort(function (a, b) {
+    if (COURSE_VIEW.sort === 'name') return a.name.localeCompare(b.name);
+    if (COURSE_VIEW.sort === 'deadline') return (a.deadline || '9999').localeCompare(b.deadline || '9999');
+    return progressOf(b).last.localeCompare(progressOf(a).last) || a.name.localeCompare(b.name);
   });
-
-  v.innerHTML = html;
+  var h = '<div class="row"><div><h1>Courses</h1><p class="sub">Pick up where you left off.</p></div><span class="spacer"></span>' +
+    '<button class="btn primary" data-act="course-add">Add course</button><button class="btn" data-act="csv-import-open">Import CSV</button></div>' +
+    '<div class="course-tools"><div><label class="f" for="course-search">Find a course</label><input type="search" id="course-search" placeholder="Search your courses…" value="' + esc(COURSE_VIEW.q) + '"></div>' +
+    '<div><label class="f" for="course-sort">Sort by</label><select id="course-sort">' + [['recent','Recent activity'],['deadline','Deadline'],['name','Name']].map(function (o) { return '<option value="' + o[0] + '"' + (COURSE_VIEW.sort === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div></div>';
+  if (!DB.courses.length) h += '<div class="empty">Add your first course or <button class="btn" data-act="seed-starter">Use the starter list</button></div>';
+  else if (!filtered.length) h += '<div class="empty">No courses match. <button class="btn" data-act="course-search-reset">Clear search</button></div>';
+  [['active','Active'],['completed','Completed'],['dropped','Dropped']].forEach(function (group) {
+    var list = filtered.filter(function (c) { return c.status === group[0]; }); if (!list.length) return;
+    h += group[0] === 'active' ? '<div class="sechead"><h2>Active</h2><span class="pill">' + list.length + '</span></div>' :
+      '<details class="disclosure course-archive"' + (q ? ' open' : '') + '><summary>' + group[1] + '<span class="pill">' + list.length + '</span></summary>';
+    h += '<div class="grid g2">' + list.map(courseCardHTML).join('') + '</div>';
+    if (group[0] !== 'active') h += '</details>';
+  });
+  v.innerHTML = h;
+  $('#course-search').oninput = function () {
+    var pos = this.selectionStart; COURSE_VIEW.q = this.value; renderClassroom(v);
+    var input = $('#course-search'); input.focus({preventScroll:true}); input.setSelectionRange(pos, pos);
+  };
+  $('#course-sort').onchange = function () { COURSE_VIEW.sort = this.value; renderClassroom(v); };
 }
-
+ACTIONS['course-search-reset'] = function () { COURSE_VIEW.q = ''; route(); };
 function courseCardHTML(c) {
-  var p = progressOf(c), dl = daysLeft(c);
+  var p = progressOf(c), dl = daysLeft(c), active = c.status === 'active';
   var res = DB.resources.filter(function (r) { return r.courseId === c.id; }).length;
   var nb = DB.notebooks.filter(function (n) { return n.courseId === c.id; }).length;
-  var h = '<div class="card course-card ' + (c.status === 'completed' ? 'done' : c.status === 'dropped' ? 'dropped' : '') + '">';
-  h += '<div class="cardhead"><span class="dot" style="background:' + courseColor(c.id) + '"></span>' +
-    '<span class="ttl" title="' + esc(c.name) + '">' + esc(c.name) + '</span>' +
-    (c.status === 'completed' ? '<span class="tag" style="background:var(--ok-soft);color:var(--ok)">completed</span>' : '') +
-    (c.status === 'dropped' ? '<span class="tag">dropped</span>' : '') + '</div>';
-
-  h += '<div class="bar"><i style="width:' + p.pct + '%"></i></div>';
-  h += '<div class="row tight mini">' +
-    '<span><b>' + p.done + '</b>' + (c.totalSessions ? ' / ' + c.totalSessions : '') + ' sessions</span>' +
-    (c.totalSessions ? '<span>· ' + p.remaining + ' remaining</span>' : '') +
-    '<span>· ' + fmtMins(p.minutes) + ' tracked</span>' +
-    (p.last ? '<span>· last ' + fmtShort(p.last) + '</span>' : '') +
-    '</div>';
-
-  h += '<div class="row tight">';
-  h += dl !== null
-    ? '<span class="pill ' + (dl < 0 ? 'bad' : dl <= 7 ? 'warn' : '') + '">Due ' + fmtDate(c.deadline) + ' · ' +
-      (dl < 0 ? Math.abs(dl) + 'd over' : dl + 'd left') + '</span>' +
-      '<button class="btn sm ghost" data-act="course-deadline-decide" data-id="' + c.id + '">Change</button>'
-    : '<button class="btn sm ghost" data-act="course-deadline-set" data-id="' + c.id + '">Set a deadline</button>';
-  h += '</div>';
-
-  if (c.categories && c.categories.length) {
-    h += '<div class="chips">' + c.categories.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</div>';
-  } else {
-    h += '<button class="btn sm ghost" data-act="course-topics" data-id="' + c.id + '">Add topics — they feed the brain map</button>';
-  }
-
-  var links = [];
-  if (c.link) links.push('<a href="' + esc(c.link) + '" target="_blank" rel="noopener">Class / playlist</a>');
-  (c.extraLinks || []).forEach(function (l) {
-    links.push('<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.label || 'Link') + '</a>');
-  });
-  links.push('<a href="#/resources?course=' + c.id + '">Resources (' + res + ')</a>');
-  links.push('<a href="#/notebooks?course=' + c.id + '">Notebooks (' + nb + ')</a>');
-  links.push('<a href="#" data-act="course-edit" data-id="' + c.id + '">Edit</a>');
-  links.push('<a href="#" data-act="course-del" data-id="' + c.id + '">Remove</a>');
-  h += '<div class="linkline">' + links.join('') + '</div>';
-
-  if (c.notes) h += '<div class="mini">' + esc(c.notes) + '</div>';
-  if (c.extensions && c.extensions.length) {
-    h += '<div class="mini">Extended ' + c.extensions.length + '× (was ' + fmtShortY(c.extensions[0].from) + ')</div>';
-  }
-
-  h += '<div class="row tight">';
-  if (c.status === 'active') {
-    h += '<button class="btn sm" data-act="course-complete" data-id="' + c.id + '">Mark completed</button>' +
-         '<button class="btn sm ghost" data-act="course-drop" data-id="' + c.id + '">Drop</button>';
-  } else {
-    h += '<button class="btn sm" data-act="course-reopen" data-id="' + c.id + '">Reopen</button>';
-  }
-  h += '</div></div>';
-  return h;
+  return '<article class="card course-card' + (active ? '' : ' done') + '"><div class="cardhead">' +
+    '<span class="dot" style="background:' + courseColor(c.id) + '"></span><h2 class="ttl">' + esc(c.name) + '</h2>' +
+    (!active ? '<span class="tag">' + esc(c.status) + '</span>' : '') + '</div>' +
+    (c.totalSessions ? '<div class="bar" role="progressbar" aria-label="Course progress" aria-valuenow="' + p.pct + '" aria-valuemin="0" aria-valuemax="100"><i style="width:' + p.pct + '%"></i></div>' : '') +
+    '<div class="mini"><b>' + p.done + (c.totalSessions ? ' / ' + c.totalSessions : '') + '</b> ' + esc(courseUnit(c)) + ' complete · ' + fmtMins(p.minutes) + ' studied</div>' +
+    '<div class="mini">' + (dl !== null ? 'Due ' + fmtShortY(c.deadline) + (dl < 0 ? ' · overdue' : ' · ' + dl + ' days left') : p.last ? 'Last studied ' + fmtShortY(p.last) : 'Ready to begin') + '</div>' +
+    (active ? courseActionsHTML(c) : '<button class="btn" data-act="course-reopen" data-id="' + c.id + '">Reopen course</button>') +
+    '<details class="disclosure"><summary>Details<span class="mini">Materials & topics</span></summary><div class="details-content">' +
+      '<div class="linkline"><a href="#/resources?course=' + c.id + '">Resources (' + res + ')</a><a href="#/notebooks?course=' + c.id + '">Notebooks (' + nb + ')</a>' +
+      (c.extraLinks || []).map(function (l) { return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.label || 'Link') + '</a>'; }).join('') + '</div>' +
+      '<div class="chips">' + (c.categories || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</div>' +
+      (c.notes ? '<p class="mini">' + esc(c.notes) + '</p>' : '') +
+      (c.extensions && c.extensions.length ? '<p class="mini">Deadline extended ' + c.extensions.length + ' times</p>' : '') + '</div></details>' +
+    '<details class="disclosure"><summary>Manage<span class="mini">Edit & organize</span></summary><div class="management">' +
+      '<button class="btn" data-act="course-edit" data-id="' + c.id + '">Edit course</button>' +
+      '<button class="btn" data-act="' + (c.deadline ? 'course-deadline-decide' : 'course-deadline-set') + '" data-id="' + c.id + '">' + (c.deadline ? 'Review deadline' : 'Set deadline') + '</button>' +
+      (active ? '<button class="btn" data-act="course-complete" data-id="' + c.id + '">Mark completed</button><button class="btn" data-act="course-drop" data-id="' + c.id + '">Drop course</button>' : '') +
+      '<button class="btn danger" data-act="course-del" data-id="' + c.id + '">Remove course</button></div></details></article>';
 }
 
 /* ------------------------------- add / edit ------------------------------ */
@@ -108,8 +72,9 @@ function courseFormModal(course) {
       '<input type="text" id="c-name" value="' + esc(c.name === 'Untitled course' ? '' : c.name) + '" placeholder="e.g. Statistics"></div>' +
     '<div class="field"><label class="f">Class / playlist link</label>' +
       '<input type="url" id="c-link" value="' + esc(c.link) + '" placeholder="https://youtube.com/playlist?list=… or your LMS URL"></div>' +
+    '<div class="field"><label class="f" for="c-unit">Progress is measured in</label><input id="c-unit" type="text" maxlength="30" value="' + esc(courseUnit(c)) + '" placeholder="lectures, chapters, exercises…"></div>' +
     '<div class="grid g2" style="gap:12px">' +
-      '<div class="field"><label class="f">Total sessions / lectures in the course</label>' + stepper('c-total', c.totalSessions, 1, 0, 9999) +
+      '<div class="field"><label class="f">Total units in the course</label>' + stepper('c-total', c.totalSessions, 1, 0, 9999) +
         '<div class="hint">0 = untracked, just log time.</div></div>' +
       '<div class="field"><label class="f">Already finished before today</label>' + stepper('c-off', c.doneOffset, 1, 0, 9999) +
         '<div class="hint">Head start, so progress starts where you actually are.</div></div>' +
@@ -159,6 +124,7 @@ function courseFormModal(course) {
         if (!name) { toast('Give the course a name'); return; }
         c.name = name;
         c.link = box.querySelector('#c-link').value.trim();
+        c.unit = box.querySelector('#c-unit').value.trim() || 'units';
         c.totalSessions = readNum('c-total', 0);
         c.doneOffset = readNum('c-off', 0);
         c.deadline = box.querySelector('#c-dl').value || '';
@@ -222,7 +188,7 @@ ACTIONS['course-deadline-set'] = function (el) {
   modal(
     '<h2>Set a deadline for ' + esc(c.name) + '</h2>' +
     '<p class="sub">Optional — but with one, the app can tell you the pace you need.' +
-      (c.totalSessions ? ' ' + p.remaining + ' sessions remain.' : '') + '</p>' +
+      (c.totalSessions ? ' ' + p.remaining + ' ' + esc(courseUnit(c)) + ' remain.' : '') + '</p>' +
     '<div class="field"><label class="f">Finish by</label><input type="date" id="d-date" value="' + shiftDays(today(), 30) + '" min="' + today() + '"></div>' +
     '<div class="chips">' + [14, 30, 60, 90, 180].map(function (n) {
       return '<button class="chip" data-act="d-quick" data-d="' + n + '">' + n + ' days</button>';
@@ -235,7 +201,7 @@ ACTIONS['course-deadline-set'] = function (el) {
       function pace() {
         var d = daysBetween(today(), inp.value);
         box.querySelector('#d-pace').innerHTML = (c.totalSessions && d > 0)
-          ? 'That is <b>' + (p.remaining / d).toFixed(1) + '</b> sessions/day for ' + d + ' days.'
+          ? 'That is <b>' + (p.remaining / d).toFixed(1) + '</b> ' + esc(courseUnit(c)) + '/day for ' + d + ' days.'
           : '';
       }
       ACTIONS['d-quick'] = function (b) { inp.value = shiftDays(today(), +b.getAttribute('data-d')); pace(); };

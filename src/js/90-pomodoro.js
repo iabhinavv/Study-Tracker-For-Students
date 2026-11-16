@@ -53,6 +53,10 @@ function pomoNotify(title, body) {
 function pomoStart() {
   var p = pomoState();
   if (p.running) return;
+  if (p.phase === 'focus' && (!courseById(p.courseId) || courseById(p.courseId).status === 'dropped')) {
+    pomoShowPanel(); toast('Choose a course before starting your focus block.');
+    $('#pomo-course').focus(); return;
+  }
   if (p.left <= 0) p.left = pomoLen(p.phase);
   p.endsAt = Date.now() + p.left * 1000;
   p.running = true;
@@ -85,44 +89,60 @@ function pomoSetPhase(phase, autoStart) {
   if (autoStart) pomoStart(); else { dbSave(true); pomoPaint(); }
 }
 
-/* a focus block ran out */
+function pomoDismissReceipt(id) {
+  var p = pomoState(); p.receipts = (p.receipts || []).filter(function (r) { return r.id !== id; });
+}
+function pomoClearSessionReceipt(id) {
+  var p = pomoState(); p.receipts = (p.receipts || []).filter(function (r) { return r.sessionId !== id; });
+}
+function pomoReviewReceipt(id) {
+  var receipt = (pomoState().receipts || []).find(function (r) { return r.id === id; });
+  if (!receipt) return;
+  if (receipt.sessionId && sessionById(receipt.sessionId)) {
+    ACTIONS['sess-edit']({ getAttribute: function () { return receipt.sessionId; } });
+  } else {
+    logReset(receipt.date);
+    if (courseById(receipt.courseId)) LOGF.courseId = receipt.courseId;
+    LOGF.minutes = receipt.minutes; LOGF.count = 0; LOGF.note = 'Focus block'; LOGF.receiptId = receipt.id;
+    modal(logCardHTML({prefix:'focuslog'}), function () { wireLog(); });
+  }
+}
+function pomoReceiptsHTML() {
+  var receipts = DB.pomo && DB.pomo.receipts || [];
+  if (!receipts.length) return '';
+  return '<div class="sechead"><h2>Finished focus blocks</h2></div><div class="card">' + receipts.map(function (r) {
+    return '<div class="receipt"><div><b>' + fmtMins(r.minutes) + (r.courseId ? ' · ' + esc(courseName(r.courseId)) : '') + '</b>' +
+      '<p class="mini">' + (r.sessionId ? 'Study time recorded · confirm completed units and topics' : 'Ready to record · completed units start at zero') +
+      ' · ' + fmtShort(r.date) + '</p></div><span class="receipt-actions"><button class="btn" data-act="focus-review" data-id="' + r.id + '">' +
+      (r.sessionId ? 'Review' : 'Record time') + '</button>' +
+      (r.sessionId ? '<button class="btn ghost" data-act="focus-dismiss" data-id="' + r.id + '">Dismiss</button>' : '') + '</span></div>';
+  }).join('') + '</div>';
+}
+/* A timer measures effort. Syllabus units are confirmed separately. */
 function pomoFinish(awayMinutes) {
   var p = pomoState(), c = pomoCfg();
   if (p.phase === 'focus') {
     p.cycles = (p.cycles || 0) + 1;
-    var mins = c.focus;
-    var course = p.courseId ? courseById(p.courseId) : null;
+    var course = courseById(p.courseId), session = null;
     if (c.autoLog && course) {
-      DB.sessions.push({
-        id: uid(), courseId: course.id, date: today(),
-        count: c.countAsSession ? 1 : 0, minutes: mins,
-        topics: [], note: 'Pomodoro', createdAt: new Date().toISOString()
-      });
-      DB.lastCourseId = course.id;
-      toast('Focus block done — ' + fmtMins(mins) + ' logged to ' + esc(course.name));
-    } else {
-      toast('Focus block done — ' + fmtMins(mins), 8000, course ? 'Log it' : null, course ? function () {
-        DB.sessions.push({
-          id: uid(), courseId: course.id, date: today(), count: c.countAsSession ? 1 : 0,
-          minutes: mins, topics: [], note: 'Pomodoro', createdAt: new Date().toISOString()
-        });
-        dbSave(true); route();
-      } : null);
+      session = { id: uid(), courseId: course.id, date: today(), count: 0, minutes: c.focus,
+        topics: [], note: 'Focus block', source: 'focus', focusBlocks: 1, createdAt: new Date().toISOString() };
+      DB.sessions.push(session); DB.lastCourseId = course.id;
     }
-    pomoBeep(3);
-    pomoNotify('Focus block done', (course ? course.name + ' · ' : '') + 'take a break');
-    var nextPhase = (p.cycles % (c.cycle || 4) === 0) ? 'long' : 'short';
-    pomoSetPhase(nextPhase, false);
+    var receipt = { id: uid(), courseId: course ? course.id : null, date: today(), minutes: c.focus, sessionId: session ? session.id : null };
+    if (!p.receipts) p.receipts = []; p.receipts.push(receipt);
+    toast('Focus block finished · ' + fmtMins(c.focus) + (session ? ' recorded' : ' ready to record'), 10000, 'Review', function () { pomoReviewReceipt(receipt.id); });
+    pomoBeep(3); pomoNotify('Focus block done', (course ? course.name + ' · ' : '') + 'take a break');
+    pomoSetPhase(p.cycles % (c.cycle || 4) === 0 ? 'long' : 'short', false);
   } else {
-    pomoBeep(2);
-    pomoNotify('Break over', 'Back to it');
-    toast('Break over — next focus block ready');
-    pomoSetPhase('focus', false);
+    pomoBeep(2); pomoNotify('Break over', 'Back to it');
+    toast('Break over — next focus block ready'); pomoSetPhase('focus', false);
   }
   if (awayMinutes) toast('The timer finished while this tab was away.', 4000);
-  dbSave(true);
-  route();
+  dbSave(true); route();
 }
+ACTIONS['focus-review'] = function (el) { pomoReviewReceipt(el.getAttribute('data-id')); };
+ACTIONS['focus-dismiss'] = function (el) { pomoDismissReceipt(el.getAttribute('data-id')); dbSave(true); route(); };
 
 var POMO_RING = 168;
 
@@ -161,7 +181,7 @@ function pomoMountPanel() {
       '<button class="btn sm" data-act="pomo-skip">Skip</button>' +
     '</div>' +
     '<div class="field" style="margin-bottom:8px"><label class="f">Working on</label>' +
-      '<select id="pomo-course"><option value="">— nothing yet —</option>' + courseOptions(p.courseId) + '</select></div>' +
+      '<select id="pomo-course" aria-label="Course for this focus block"><option value="">Choose a course</option>' + courseOptions(p.courseId) + '</select></div>' +
     '<div class="row tight mini" style="margin-bottom:10px">' +
       '<span class="pill"><b id="pm-cycles">' + (p.cycles || 0) + '</b> blocks done</span>' +
       '<span class="pill" id="pm-lens">' + c.focus + '/' + c.short + '/' + c.long + ' min</span>' +
@@ -175,12 +195,16 @@ function pomoMountPanel() {
       '<div class="field" style="margin-top:8px"><label class="f">Long break every N blocks</label>' +
         '<input type="number" id="pc-cycle" value="' + c.cycle + '" min="2" max="12"></div>' +
       '<label class="chk"><input type="checkbox" id="pc-autolog"' + (c.autoLog ? ' checked' : '') + '> log finished blocks automatically</label>' +
-      '<label class="chk"><input type="checkbox" id="pc-count"' + (c.countAsSession ? ' checked' : '') + '> count each block as 1 session</label>' +
+      '<p class="hint">Focus blocks record time. Confirm finished lectures or chapters in the completion review.</p>' +
       '<label class="chk"><input type="checkbox" id="pc-sound"' + (c.sound ? ' checked' : '') + '> chime when it ends</label>' +
       '<button class="btn sm primary" data-act="pomo-save" style="margin-top:10px">Save settings</button>' +
     '</details>';
   var sel = $('#pomo-course');
-  sel.onchange = function () { pomoState().courseId = sel.value || null; dbSave(true); };
+  sel.onchange = function () {
+    if (p.running) { sel.value = p.courseId || ''; toast('Pause the timer before changing course.'); return; }
+    p.courseId = sel.value || null; dbSave(true);
+  };
+  labelFields(panel);
 }
 
 /* cheap per-tick update of just the changing numbers */
@@ -229,12 +253,22 @@ ACTIONS['pomo-skip'] = function () {
   var p = pomoState();
   pomoSetPhase(p.phase === 'focus' ? ((p.cycles + 1) % (pomoCfg().cycle || 4) === 0 ? 'long' : 'short') : 'focus', false);
 };
+function pomoShowPanel() {
+  var panel = $('#pomo-panel'); panel.classList.remove('hidden');
+  panel.setAttribute('role', 'region'); panel.setAttribute('aria-label', 'Focus timer');
+  pomoMountPanel(); pomoPaint();
+}
 ACTIONS['pomo-panel'] = function () {
   var panel = $('#pomo-panel');
-  var opening = panel.classList.contains('hidden');
-  panel.classList.toggle('hidden');
-  if (opening) pomoMountPanel();
-  pomoPaint();
+  if (panel.classList.contains('hidden')) pomoShowPanel();
+  else { panel.classList.add('hidden'); $('#pomo-mini [data-act="pomo-panel"]').focus(); }
+};
+ACTIONS['course-focus'] = function (el) {
+  var c = courseById(el.getAttribute('data-id')), p = pomoState(); if (!c) return;
+  if (p.running) { pomoShowPanel(); if (p.courseId !== c.id) toast('Pause your current block before switching courses.'); return; }
+  var changed = p.courseId !== c.id; p.courseId = c.id;
+  if (changed || p.phase !== 'focus') pomoSetPhase('focus', false);
+  pomoStart(); pomoShowPanel();
 };
 ACTIONS['pomo-save'] = function () {
   var c = pomoCfg();
@@ -243,7 +277,7 @@ ACTIONS['pomo-save'] = function () {
   c.long = clamp(num($('#pc-long').value, 15), 1, 90);
   c.cycle = clamp(num($('#pc-cycle').value, 4), 2, 12);
   c.autoLog = $('#pc-autolog').checked;
-  c.countAsSession = $('#pc-count').checked;
+  c.countAsSession = false;
   c.sound = $('#pc-sound').checked;
   var p = pomoState();
   if (!p.running) p.left = pomoLen(p.phase);

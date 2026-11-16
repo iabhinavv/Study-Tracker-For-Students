@@ -17,7 +17,7 @@ var ROUTE_LAST = '';
 
 /* ---- mobile chrome: slim top title + bottom tab bar ---- */
 var PAGE_LABELS = {
-  dashboard: 'Dashboard', calendar: 'Log & Calendar', classroom: 'Classroom',
+  dashboard: 'Today', calendar: 'Calendar', classroom: 'Courses',
   resources: 'Resources', notebooks: 'Notebooks', map: 'Brain Map',
   stats: 'Statistics', data: 'Data & Backup'
 };
@@ -40,7 +40,9 @@ function updateChrome(page) {
     esc(PAGE_LABELS[page] || 'Study Tracker') + '</span>';
   var active = TAB_FOR[page] || 'more';
   $$('#tabbar [data-tab]').forEach(function (el) {
-    el.classList.toggle('on', el.getAttribute('data-tab') === active);
+    var selected = el.getAttribute('data-tab') === active;
+    el.classList.toggle('on', selected);
+    if (el.tagName === 'A') { if (selected) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current'); }
   });
 }
 
@@ -69,8 +71,13 @@ function route() {
     if (!LOGF.courseId || !courseById(LOGF.courseId)) logReset(page === 'calendar' ? CAL.sel : today());
   }
 
-  var v = $('#view');
+  var v = $('#view'), previousFocus = document.activeElement;
   ROUTES[page](v);
+  if (previousFocus && !previousFocus.isConnected && !$('#modal-root').classList.contains('on')) {
+    var heading = v.querySelector('h1'); if (heading) { heading.tabIndex = -1; heading.focus({preventScroll:true}); }
+  }
+  labelFields(v);
+  document.title = (PAGE_LABELS[page] || 'Study Tracker') + ' · Study Tracker';
   if (page !== ROUTE_LAST) { window.scrollTo(0, 0); ROUTE_LAST = page; }
   renderTopStats();
   pomoPaint();
@@ -90,16 +97,18 @@ function renderTopStats() {
   storeRefreshLine();          // one owner for the storage line and the footer
 }
 
-ACTIONS['quick-log'] = function () {
+ACTIONS['quick-log'] = function (el) {
   if (!DB.courses.length) { location.hash = '#/classroom'; route(); ACTIONS['course-add'](); return; }
   logReset(today());
-  modal(logCardHTML({ prefix: 'qlog' }).replace('class="card"', 'class=""'), function () { wireLog(); });
+  var course = el && el.getAttribute ? el.getAttribute('data-course') : null;
+  if (courseById(course)) LOGF.courseId = course; else logRestoreDraft();
+  modal(logCardHTML({ prefix: 'qlog' }), function () { wireLog(); });
 };
 ACTIONS['modal-close'] = function () { modalClose(); };
 
 ACTIONS['more-sheet'] = function () {
   var page = (location.hash.replace(/^#\/?/, '').split('?')[0]) || 'dashboard';
-  var items = [['classroom', 'Classroom'], ['stats', 'Statistics'], ['resources', 'Resources'],
+  var items = [['classroom', 'Courses'], ['stats', 'Statistics'], ['resources', 'Resources'],
                ['notebooks', 'Notebooks'], ['data', 'Data & Backup']];
   var rows = items.map(function (it) {
     var on = page === it[0];
@@ -108,8 +117,7 @@ ACTIONS['more-sheet'] = function () {
   }).join('');
   rows += '<button class="sheet-row" type="button" data-act="more-theme"><span class="sq"></span>' +
     (DB.profile.theme === 'dark' ? 'Switch to paper mode' : 'Switch to dark mode') + '</button>';
-  modal('<h2>More</h2><div class="sheet-list">' + rows + '</div>' +
-    '<div class="modal-foot"><button class="btn" data-act="modal-close">Close</button></div>');
+  modal('<h2>More</h2><div class="sheet-list">' + rows + '</div><div class="storage-summary">' + storageSummaryHTML() + '</div>');
 };
 ACTIONS['more-go'] = function () { modalClose(); };            // the anchor navigates on its own
 ACTIONS['more-theme'] = function () { modalClose(); ACTIONS['theme'](); };

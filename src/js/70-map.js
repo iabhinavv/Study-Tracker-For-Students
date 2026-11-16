@@ -23,6 +23,7 @@ var MAP = {
   view: { k: 1, tx: 0, ty: 0 },
   rot: -Math.PI / 2,          // where the first course starts
   spin: true, labels: true,   /* pulled from index.html edit (dc85c0a): map spins by default */
+  mode: 'map', q: '', courseId: '', touchPan: false, paused: false, drawKey: '',
   pan: null, hover: null, raf: null, ink: null
 };
 
@@ -30,9 +31,12 @@ var MAP_RING = 320;      /* smaller wheel on a phone, so the names still fit */
 function mapSizeRing() { MAP_RING = isNarrow() ? 250 : 320; }
 
 function mapBuild() {
-  var ts = topicStats();
+  var ts = topicStats(), visits = {};
+  DB.sessions.forEach(function (s) {
+    (s.topics || []).forEach(function (t) { var key = s.courseId + '::' + t; visits[key] = (visits[key] || 0) + 1; });
+  });
   var nodes = [], links = [], byKey = {};
-  var courses = DB.courses.filter(function (c) { return c.status !== 'dropped'; });
+  var courses = DB.courses.filter(function (c) { return c.status !== 'dropped' && (!MAP.courseId || c.id === MAP.courseId); });
   if (!courses.length) { MAP.nodes = []; MAP.links = []; MAP.byKey = {}; return; }
 
   /* angular budget: one slot per point, plus a gap between subjects */
@@ -66,8 +70,8 @@ function mapBuild() {
         var st = ts.nodes[key] || { count: 0, minutes: 0, last: '' };
         var tn = {
           key: 't::' + key, kind: 'topic', label: topic, topic: topic, color: courseColor(c.id), courseId: c.id,
-          count: st.count, minutes: st.minutes, last: st.last, ang: ang,
-          r: st.count ? 3.4 + 2.1 * Math.sqrt(st.count) : 2.6
+          count: visits[key] || 0, minutes: st.minutes, last: st.last, ang: ang,
+          r: visits[key] ? 3.4 + 2.1 * Math.sqrt(visits[key]) : 2.6
         };
         nodes.push(tn); byKey[tn.key] = tn;
       }
@@ -287,7 +291,7 @@ function mapDraw() {
 
   /* labels: dots when zoomed out, names as you come closer */
   if (MAP.labels) {
-    var showCourse = k >= 0.42, showTopic = k >= 0.9;
+    var showCourse = k >= (isNarrow() ? 0.18 : 0.42), showTopic = k >= 0.9;
     MAP.nodes.forEach(function (n) {
       var isHov = hov && hov.key === n.key;
       if (!(isHov || (n.kind === 'course' ? showCourse : showTopic)) || !lit(n)) return;
@@ -301,7 +305,11 @@ function mapDraw() {
       ctx.textBaseline = 'middle';
       ctx.font = (n.kind === 'course' ? (isNarrow() ? '600 11.5px ' : '600 13px ') : '400 11.5px ') + ink.serif;
       var label = n.kind === 'course' ? n.label : n.label + (n.count ? ' · ' + n.count : '');
-      if (isNarrow() && label.length > 11) label = label.slice(0, 10) + '…';
+      var maxLabel = isNarrow() ? Math.min(84, W * .22) : 150;
+       if (ctx.measureText(label).width > maxLabel) {
+         while (label.length > 1 && ctx.measureText(label + '…').width > maxLabel) label = label.slice(0, -1);
+         label += '…';
+       }
       ctx.strokeStyle = ink.paper;
       ctx.lineWidth = 3.5;
       ctx.strokeText(label, 0, 0);
@@ -325,8 +333,10 @@ function mapDraw() {
 
 function mapTick() {
   if (!$('#map')) { MAP.raf = null; return; }
-  if (MAP.spin) MAP.rot += 0.0012;
-  mapDraw();
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (MAP.spin && !MAP.paused && !MAP.pan && !MAP.hover && !document.hidden && !reduced && !$('#modal-root').classList.contains('on')) MAP.rot += 0.0012;
+  var key = [MAP.rot, MAP.view.k, MAP.view.tx, MAP.view.ty, MAP.labels, MAP.hover && MAP.hover.key].join('|');
+  if (key !== MAP.drawKey) { mapDraw(); MAP.drawKey = key; }
   MAP.raf = requestAnimationFrame(mapTick);
 }
 
@@ -336,8 +346,8 @@ function mapFit() {
   var W = cv.clientWidth, H = cv.clientHeight;
   /* reserve room in SCREEN pixels for the labels that sit outside the ring,
      so a long subject name never runs off the sheet */
-  var m = isNarrow() ? 72 : 100;
-  MAP.view.k = clamp(Math.min((W - m * 2) / (MAP_RING * 2), (H - m * 1.5) / (MAP_RING * 2)), 0.28, 3);
+  var m = isNarrow() ? Math.min(84, W * .22) + 20 : 172;
+  MAP.view.k = clamp(Math.min((W - m * 2) / (MAP_RING * 2), (H - m * 2) / (MAP_RING * 2)), 0.12, 3);
   MAP.view.tx = W / 2;
   MAP.view.ty = H / 2;
 }
@@ -360,7 +370,35 @@ function mapZoomAt(mx, my, f) {
   MAP.view.k = k2;
 }
 
+function mapControlsHTML() {
+  return '<div class="map-tools"><div class="segmented" aria-label="Map display">' +
+    '<button class="btn" data-act="map-mode" data-mode="map" aria-pressed="' + (MAP.mode === 'map') + '">Map</button>' +
+    '<button class="btn" data-act="map-mode" data-mode="list" aria-pressed="' + (MAP.mode === 'list') + '">List</button></div>' +
+    '<div class="field"><label class="f" for="map-course">Course</label><select id="map-course">' + courseOptions(MAP.courseId, true) + '</select></div>' +
+    '<div class="field map-search-field"><label class="f" for="map-search">Find a topic or course</label><input id="map-search" type="search" value="' + esc(MAP.q) + '" placeholder="Search the map…"></div></div>';
+}
+function wireMapControls(v) {
+  $('#map-course').onchange = function () { MAP.courseId = this.value; renderMap(v); labelFields(v); };
+  $('#map-search').oninput = function () {
+    var pos = this.selectionStart; MAP.q = this.value; MAP.mode = 'list'; renderMap(v);
+    var input = $('#map-search'); input.focus({preventScroll:true}); input.setSelectionRange(pos,pos);
+  };
+}
+function mapListHTML() {
+  var q = MAP.q.toLowerCase();
+  var nodes = MAP.nodes.filter(function (n) { return !q || (n.label + ' ' + courseName(n.courseId)).toLowerCase().indexOf(q) >= 0; });
+  if (!nodes.length) return '<div class="empty">No topics match. <button class="btn" data-act="map-clear">Clear filters</button></div>';
+  return '<div class="map-list">' + nodes.map(function (n) {
+    return '<button class="btn map-entry" data-act="map-detail" data-key="' + esc(n.key) + '" style="--course-color:' + n.color + '">' +
+      '<span class="swatch" aria-hidden="true"></span><span>' + esc(n.label) + '<span class="mini">' +
+      (n.kind === 'course' ? 'Course · ' + n.count + ' completed units' : esc(courseName(n.courseId)) + (n.count ? ' · studied' : ' · not started')) +
+      ' · ' + fmtMins(n.minutes) + '</span></span></button>';
+  }).join('') + '</div>';
+}
+
 function renderMap(v) {
+  if (MAP.raf) { cancelAnimationFrame(MAP.raf); MAP.raf = null; }
+  MAP.hover = null; MAP.pan = null; MAP.drawKey = '';
   var ts = topicStats();
   var totalTopics = 0, litTopics = 0;
   DB.courses.forEach(function (c) {
@@ -372,40 +410,46 @@ function renderMap(v) {
   });
 
   var h = '<h1>Brain Map</h1>' +
-    '<p class="sub">Every subject and topic is a point on the wheel, tied back to one pivot. ' +
-    'Points grow as you log sessions; topics studied together get threaded to each other.</p>' +
+    '<p class="sub">Your courses and topics, connected by study.</p>' +
     '<div class="row tight" style="margin-bottom:14px">' +
       '<span class="pill"><b>' + litTopics + '</b> of ' + totalTopics + ' topics started</span>' +
       '<span class="pill"><b>' + Object.keys(ts.links).length + '</b> threads</span>' +
       '<span class="pill"><b>' + DB.courses.filter(function (c) { return c.status !== 'dropped'; }).length + '</b> subjects</span>' +
     '</div>';
 
+  h += mapControlsHTML();
+  mapSizeRing(); mapBuild();
+  if (MAP.mode === 'list' || MAP.q) {
+    h += mapListHTML(); v.innerHTML = h; wireMapControls(v); return;
+  }
   if (!totalTopics) {
     h += '<div class="empty">Your map needs topics.<br><br>Add a few to any course in ' +
-      '<a href="#/classroom">Classroom</a> (e.g. Regression, ANOVA, p-values), then tick them off while logging a session.</div>';
-    v.innerHTML = h;
+      '<a href="#/classroom">Courses</a> (e.g. Regression, ANOVA, p-values), then tick them off while logging a session.</div>';
+    v.innerHTML = h; wireMapControls(v);
     return;
   }
 
   h += '<div id="map-wrap">' +
-    '<canvas id="map"></canvas>' +
+    '<canvas id="map" class="' + (MAP.touchPan ? 'map-explore' : '') + '" role="img" aria-label="Study topic map. Use List view for full names and keyboard navigation."></canvas>' +
     '<div id="map-ctl">' +
       '<button class="btn sm" data-act="map-zoom" data-d="1.35">Zoom in</button>' +
       '<button class="btn sm" data-act="map-zoom" data-d="0.74">Zoom out</button>' +
       '<button class="btn sm" data-act="map-fit">Fit</button>' +
-      '<button class="btn sm" data-act="map-spin">' + (MAP.spin ? 'Stop' : 'Spin') + '</button>' +
+      '<button class="btn sm map-touch-control" data-act="map-pan" aria-pressed="' + MAP.touchPan + '">' + (MAP.touchPan ? 'Scroll page' : 'Pan map') + '</button>' +
+      '<button class="btn sm" data-act="map-spin">' + (MAP.spin && !MAP.paused && !window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'Pause spin' : 'Spin') + '</button>' +
       '<button class="btn sm" data-act="map-labels">Labels</button>' +
     '</div>' +
     '<div id="map-tip" class="hidden"></div>' +
     '</div>' +
     '<div class="chips" style="margin:12px 0">' + DB.courses.filter(function (c) { return c.status !== 'dropped'; }).map(function (c) {
-      return '<span class="pill"><span style="display:inline-block;width:8px;height:8px;background:' + courseColor(c.id) + '"></span>' + esc(c.name) + '</span>';
+      return '<button class="chip' + (MAP.courseId === c.id ? ' on' : '') + '" data-act="map-filter" data-id="' + c.id + '" aria-pressed="' + (MAP.courseId === c.id) + '"><span style="display:inline-block;width:8px;height:8px;background:' + courseColor(c.id) + '"></span> ' + esc(c.name) + '</button>';
     }).join('') + '</div>' +
     '<div class="hint">Hover a point to isolate its threads · drag to pan · scroll or the buttons to zoom · tap or click a point for detail. ' +
     'Zoomed out the wheel is just dots; zoom in for subject names, further in for topics. ' +
     'Hollow points are topics you have not started; dashed threads join the same topic name in two subjects.</div>';
 
   v.innerHTML = h;
+  wireMapControls(v);
 
   mapSizeRing();
   mapBuild();
@@ -428,16 +472,17 @@ function renderMap(v) {
     tip.style.top = Math.max(6, my - 12) + 'px';
     tip.innerHTML = '<b>' + esc(n.label) + '</b><br><span class="mini">' +
       (n.kind === 'course'
-        ? 'subject · ' + n.count + ' sessions · ' + fmtMins(n.minutes) + ' · ' +
+        ? 'course · ' + n.count + ' completed units · ' + fmtMins(n.minutes) + ' · ' +
           (((courseById(n.courseId) || {}).categories) || []).length + ' topics'
         : esc(courseName(n.courseId)) + ' · ' +
-          (n.count ? n.count + ' sessions · ' + fmtMins(n.minutes) + (n.last ? ' · last ' + fmtShort(n.last) : '')
+          (n.count ? n.count + ' study entries · ' + fmtMins(n.minutes) + (n.last ? ' · last ' + fmtShort(n.last) : '')
                    : 'not started')) + '</span>';
   }
 
   cv.onpointermove = function (e) {
     var l = local(e);
     if (MAP.pan) {
+      if (e.pointerType === 'touch' && !MAP.touchPan) return;
       MAP.view.tx = MAP.pan.tx + (l[0] - MAP.pan.mx);
       MAP.view.ty = MAP.pan.ty + (l[1] - MAP.pan.my);
       return;
@@ -445,6 +490,7 @@ function renderMap(v) {
     hoverAt(l[0], l[1]);
   };
   cv.onpointerdown = function (e) {
+    MAP.paused = true; var spinButton = $('[data-act="map-spin"]'); if (spinButton) spinButton.textContent = 'Spin';
     var l = local(e);
     try { cv.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
     MAP.pan = { mx: l[0], my: l[1], tx: MAP.view.tx, ty: MAP.view.ty };
@@ -456,16 +502,19 @@ function renderMap(v) {
     var moved = MAP.pan && (Math.abs(l[0] - MAP.pan.mx) > 4 || Math.abs(l[1] - MAP.pan.my) > 4);
     MAP.pan = null;
     cv.classList.remove('drag');
+    try { cv.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
     if (moved) return;
     var n = mapNodeAt(l[0], l[1]);
-    if (n) mapNodeModal(n);
+    if (n) { MAP.paused = true; mapNodeModal(n); }
   };
+  cv.onpointercancel = function () { MAP.pan = null; cv.classList.remove('drag'); };
   cv.onpointerleave = function () {
     MAP.hover = null; MAP.pan = null;
     tip.classList.add('hidden');
     cv.classList.remove('drag');
   };
   cv.onwheel = function (e) {
+    if (isNarrow()) return;
     e.preventDefault();
     var l = local(e);
     mapZoomAt(l[0], l[1], Math.exp(-e.deltaY * 0.0016));
@@ -479,12 +528,12 @@ function mapNodeModal(n) {
     var p = progressOf(c);
     modal('<h2>' + esc(c.name) + '</h2>' +
       '<div class="row tight" style="margin:12px 0">' +
-        '<span class="pill"><b>' + p.done + '</b>' + (c.totalSessions ? ' / ' + c.totalSessions : '') + ' sessions</span>' +
+        '<span class="pill"><b>' + p.done + '</b>' + (c.totalSessions ? ' / ' + c.totalSessions : '') + ' ' + esc(courseUnit(c)) + '</span>' +
         '<span class="pill"><b>' + fmtMins(p.minutes) + '</b> tracked</span>' +
         '<span class="pill"><b>' + (c.categories || []).length + '</b> topics</span></div>' +
       '<div class="chips">' + (c.categories || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</div>' +
       '<div class="modal-foot"><button class="btn" data-act="modal-close">Close</button>' +
-      '<a class="btn primary" href="#/classroom" data-act="modal-close">Open in Classroom</a></div>', null);
+      '<a class="btn primary" href="#/classroom" data-act="modal-close">Open Courses</a></div>', null);
     return;
   }
   var sess = DB.sessions.filter(function (s) { return s.courseId === n.courseId && (s.topics || []).indexOf(n.topic) >= 0; })
@@ -494,7 +543,7 @@ function mapNodeModal(n) {
   modal('<h2>' + esc(n.label) + '</h2>' +
     '<p class="sub">' + esc(courseName(n.courseId)) + '</p>' +
     '<div class="row tight" style="margin-bottom:14px">' +
-      '<span class="pill"><b>' + n.count + '</b> sessions</span>' +
+      '<span class="pill"><b>' + n.count + '</b> study entries</span>' +
       '<span class="pill"><b>' + fmtMins(n.minutes) + '</b></span>' +
       (n.last ? '<span class="pill">last ' + fmtShort(n.last) + '</span>' : '<span class="pill">not started</span>') + '</div>' +
     (Object.keys(related).length ? '<h3>Studied alongside</h3><div class="chips" style="margin-bottom:16px">' +
@@ -515,9 +564,19 @@ ACTIONS['map-log'] = function (el) {
 };
 ACTIONS['map-fit'] = function () { mapFit(); };
 ACTIONS['map-labels'] = function () { MAP.labels = !MAP.labels; };
-ACTIONS['map-spin'] = function (el) { MAP.spin = !MAP.spin; el.textContent = MAP.spin ? 'Stop' : 'Spin'; };
+ACTIONS['map-spin'] = function (el) {
+  if (MAP.paused) { MAP.paused = false; MAP.spin = true; } else MAP.spin = !MAP.spin;
+  el.textContent = MAP.spin ? 'Pause spin' : 'Spin';
+};
 ACTIONS['map-zoom'] = function (el) {
   var cv = $('#map');
   if (!cv) return;
   mapZoomAt(cv.clientWidth / 2, cv.clientHeight / 2, num(el.getAttribute('data-d'), 1.3));
 };
+
+ACTIONS['map-mode'] = function (el) { MAP.mode = el.getAttribute('data-mode'); if (MAP.mode === 'map') MAP.q = ''; route(); };
+ACTIONS['map-filter'] = function (el) { var id = el.getAttribute('data-id'); MAP.courseId = MAP.courseId === id ? '' : id; route(); };
+ACTIONS['map-clear'] = function () { MAP.courseId = ''; MAP.q = ''; route(); };
+ACTIONS['map-detail'] = function (el) { var n = MAP.byKey[el.getAttribute('data-key')]; if (n) { MAP.paused = true; mapNodeModal(n); } };
+
+ACTIONS['map-pan'] = function (el) { MAP.touchPan = !MAP.touchPan; $('#map').classList.toggle('map-explore', MAP.touchPan); el.textContent = MAP.touchPan ? 'Scroll page' : 'Pan map'; el.setAttribute('aria-pressed', String(MAP.touchPan)); };

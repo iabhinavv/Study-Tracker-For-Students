@@ -36,13 +36,13 @@ function monthGridHTML(mk, dayMap) {
     var dots = e ? Object.keys(e.courses).map(function (cid) {
       return '<span style="display:inline-block;width:6px;height:6px;border-radius:1px;background:' + courseColor(cid) + '"></span>';
     }).join('') : '';
-    h += '<div class="day' + (ds === today() ? ' today' : '') + (ds === CAL.sel ? ' sel' : '') +
+    h += '<button type="button" aria-label="' + esc(fmtDate(ds) + ' · ' + (e ? fmtMins(e.minutes) + ' studied' : 'No study logged')) + '" aria-pressed="' + (ds === CAL.sel) + '"' + (ds === today() ? ' aria-current="date"' : '') + ' class="day' + (ds === today() ? ' today' : '') + (ds === CAL.sel ? ' sel' : '') +
       (lvl >= 3 ? ' deep' : '') + '" ' +
       'data-act="cal-day" data-d="' + ds + '" ' +
       'style="background:' + (lvl ? 'color-mix(in srgb, var(--accent) ' + (lvl * 15) + '%, var(--surface))' : 'var(--surface)') + '">' +
-      '<div class="d">' + d + '</div>' +
-      (e ? '<div class="m">' + fmtMinsTight(e.minutes) + '</div><div class="row tight" style="gap:3px">' + dots + '</div>' : '') +
-      '</div>';
+      '<span class="d">' + d + '</span>' +
+      (e ? '<span class="m">' + fmtMinsTight(e.minutes) + '</span><span class="row tight" style="gap:3px">' + dots + '</span>' : '') +
+      '</button>';
   }
   h += '</div>';
   return h;
@@ -63,7 +63,7 @@ function yearHeatHTML(year, dayMap) {
       var ds = iso(cur), inYear = ds.slice(0, 4) === year;
       var e = inYear ? dayMap[ds] : null;
       var lvl = !e ? 0 : clamp(Math.ceil(e.minutes / (max || 1) * 4), 1, 4);
-      h += '<div class="c" data-l="' + lvl + '"' + (inYear ? ' title="' + fmtDate(ds) + ' — ' + (e ? fmtMins(e.minutes) + ', ' + e.count + ' sessions' : 'nothing') + '"' : ' style="opacity:.25"') + '></div>';
+      h += '<div class="c" data-l="' + lvl + '"' + (inYear ? ' title="' + fmtDate(ds) + ' — ' + (e ? fmtMins(e.minutes) + ', ' + e.count + ' completed units' : 'nothing') + '"' : ' style="opacity:.25"') + '></div>';
       cur.setDate(cur.getDate() + 1);
     }
     h += '</div>';
@@ -83,28 +83,28 @@ function renderCalendar(v) {
   years[today().slice(0, 4)] = 1;
 
   var h = '<div class="row"><div><h1>Log &amp; Calendar</h1>' +
-    '<p class="sub">Click any day to see or add sessions. Colour = minutes studied.</p></div>' +
+    '<p class="sub">Select a date to see its study entries. Shading shows study time.</p></div>' +
     '<span class="spacer"></span>' +
     '<select id="cal-course" class="filter">' + courseOptions(CAL.courseId, true) + '</select></div>';
 
   /* month nav + grid + day detail */
   h += '<div class="split cal">';
   h += '<div class="card">' +
-    '<div class="row" style="margin-bottom:10px">' +
-      '<button class="btn sm" data-act="cal-prev">‹</button>' +
-      '<h2 style="margin:0;min-width:150px;text-align:center">' + fmtMonth(mk) + '</h2>' +
-      '<button class="btn sm" data-act="cal-next">›</button>' +
-      '<button class="btn sm ghost" data-act="cal-today">Today</button>' +
+    '<div class="calendar-nav">' +
+      '<button class="btn sm" data-act="cal-prev" aria-label="Previous month">Previous</button>' +
+      '<h2 style="margin:0;min-width:0;text-align:center">' + fmtMonth(mk) + '</h2>' +
+      '<button class="btn sm" data-act="cal-next" aria-label="Next month">Next</button>' +
+      '</div><div class="row calendar-summary"><button class="btn sm ghost" data-act="cal-today">Today</button>' +
       '<span class="spacer"></span>' +
       '<span class="pill"><b>' + fmtMins(sumMins(monthList)) + '</b> this month</span>' +
-      '<span class="pill"><b>' + sumCount(monthList) + '</b> sessions</span>' +
+      '<span class="pill"><b>' + sumCount(monthList) + '</b> completed units</span>' +
     '</div>' + monthGridHTML(mk, dayMap) + '</div>';
 
-  h += '<div class="card">' +
+  h += '<div class="card" id="calendar-day-detail" aria-live="polite">' +
     '<div class="row" style="margin-bottom:8px"><h2 style="margin:0">' + fmtDate(CAL.sel) + '</h2></div>' +
     '<div class="row tight mini" style="margin-bottom:10px">' +
       '<span class="pill"><b>' + fmtMins(sumMins(selList)) + '</b></span>' +
-      '<span class="pill"><b>' + sumCount(selList) + '</b> sessions</span></div>' +
+      '<span class="pill"><b>' + sumCount(selList) + '</b> completed units</span></div>' +
     sessionRowsHTML(selList, { showDate: false }) +
     '<div class="row" style="margin-top:12px"><button class="btn primary" data-act="cal-add" data-d="' + CAL.sel + '">Log on this day</button></div>' +
     '</div>';
@@ -118,7 +118,7 @@ function renderCalendar(v) {
   var yList = list.filter(function (s) { return s.date.slice(0, 4) === CAL.year; });
   h += '<div class="card"><div class="row tight mini" style="margin-bottom:10px">' +
     '<span class="pill"><b>' + fmtMins(sumMins(yList)) + '</b> in ' + CAL.year + '</span>' +
-    '<span class="pill"><b>' + sumCount(yList) + '</b> sessions</span>' +
+    '<span class="pill"><b>' + sumCount(yList) + '</b> completed units</span>' +
     '<span class="pill"><b>' + Object.keys(calDayMap(yList)).length + '</b> active days</span>' +
     '</div>' + yearHeatHTML(CAL.year, dayMap) + '</div>';
 
@@ -129,7 +129,7 @@ function renderCalendar(v) {
     h += '<div class="empty">Log your first session and this table starts filling up.</div>';
   } else {
     h += '<div class="card scroll-x"><table><thead><tr>' +
-      '<th>Month</th><th class="num">Sessions</th><th class="num">Time</th><th class="num">Active days</th>' +
+      '<th>Month</th><th class="num">Completed units</th><th class="num">Time</th><th class="num">Active days</th>' +
       '<th class="num">Avg / active day</th><th>Most studied</th></tr></thead><tbody>';
     months.forEach(function (m) {
       h += '<tr><td><a href="#" data-act="cal-goto" data-m="' + m.key + '">' + fmtMonth(m.key) + '</a></td>' +
@@ -159,7 +159,10 @@ function monthShift(mk, n) {
 ACTIONS['cal-prev'] = function () { CAL.month = monthShift(CAL.month, -1); route(); };
 ACTIONS['cal-next'] = function () { CAL.month = monthShift(CAL.month, 1); route(); };
 ACTIONS['cal-today'] = function () { CAL.month = today().slice(0, 7); CAL.sel = today(); route(); };
-ACTIONS['cal-day'] = function (el) { CAL.sel = el.getAttribute('data-d'); route(); };
+ACTIONS['cal-day'] = function (el) {
+  CAL.sel = el.getAttribute('data-d'); route();
+  var selected = $('.cal [data-d="' + CAL.sel + '"]'); if (selected) selected.focus({preventScroll:true});
+};
 ACTIONS['cal-goto'] = function (el) { CAL.month = el.getAttribute('data-m'); CAL.sel = el.getAttribute('data-m') + '-01'; route(); };
 ACTIONS['cal-add'] = function (el) {
   logReset(el.getAttribute('data-d'));

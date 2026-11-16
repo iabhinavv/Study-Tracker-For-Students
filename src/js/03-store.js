@@ -331,16 +331,16 @@ function storeLine() {
     (STORE.dirty ? ' <span style="color:var(--sale)">Changes so far are only in this browser.</span>' : '');
 }
 
+function storageSummaryHTML() {
+  var status = STORE.error ? 'Backup file needs attention' : STORE.file && STORE.granted
+    ? (STORE.dirty ? 'Saving your data file…' : 'Saved on this device and to your data file') : 'Saved on this device';
+  return '<p class="mini">' + status + '</p><p class="mini">' +
+    (DB.lastExport ? 'Last backup: ' + fmtDate(DB.lastExport) : 'No exported backup yet') +
+    '</p><a class="btn sm ghost" href="#/data" data-act="more-go">Backup options</a>';
+}
 function storeRefreshLine() {
-  var el = $('#store-line');
-  if (el) el.innerHTML = storeLine();
-  var foot = $('#store-foot');
-  if (foot) {
-    foot.innerHTML = (STORE.file && STORE.granted)
-      ? 'Writing to <b>' + esc(STORE.name) + '</b>. <a href="#/data">Data</a>.'
-      : (STORE.dirty ? '<b>Unsaved</b> to the repo file. <a href="#/data">Save it</a>.'
-                     : 'Working copy in this browser. <a href="#/data">Data</a>.');
-  }
+  var el = $('#store-line'); if (el) el.innerHTML = storeLine();
+  var foot = $('#store-foot'); if (foot) foot.innerHTML = storageSummaryHTML();
 }
 
 /* the buttons for the Data page, in the order that makes sense right now */

@@ -27,18 +27,18 @@
    ========================================================================== */
 
 :root {
-  --paper: #F1F2EE;
-  --surface: #FCFCFA;
-  --surface-2: #E7E9E3;
-  --raise: #F6F7F4;
+  --paper: #F4F0E7;
+  --surface: #FFFCF5;
+  --surface-2: #E8E4D8;
+  --raise: #F8F5ED;
   --ink: #14171A;
   --ink-2: #454A47;
-  --ink-3: #767C77;
+  --ink-3: #5E665D;
   --rule: #C9CDC4;
-  --rule-2: #A8ADA4;
-  --accent: #2F4A85;
-  --accent-h: #24396A;
-  --accent-soft: #E2E8F3;
+  --rule-2: #858C80;
+  --accent: #315B4B;
+  --accent-h: #244638;
+  --accent-soft: #E3EBE2;
   --on-accent: #FFFFFF;
   --sale: #A2402C;
   --sale-soft: #F5E3DE;
@@ -46,13 +46,13 @@
   --ok-soft: #DCEBE3;
   --warn: #7A6015;
   --warn-soft: #F0EAD2;
-  --grid: rgba(47, 74, 133, .035);
-  --grid-major: rgba(47, 74, 133, .07);
+  --grid: rgba(85, 75, 45, .018);
+  --grid-major: rgba(85, 75, 45, .04);
   --shadow-1: none;
   --shadow-2: 3px 3px 0 rgba(20, 23, 26, .07);
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", "Hoefler Text", Georgia, "Times New Roman", serif;
-  --r: 0px;
-  --r-s: 0px;
+  --r: 12px;
+  --r-s: 7px;
   --squiggle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='6'%3E%3Cpath d='M0 4.2 c 7 -2.4 13 2 20 -.4 s 13 -2.6 20 .2 s 13 1.6 20 -.6' fill='none' stroke='%232F4A85' stroke-width='1.1'/%3E%3C/svg%3E");
   color-scheme: light;
 
@@ -81,8 +81,8 @@
   --ink-2: #AEC0E0;
   --ink-3: #7C90B4;
   --rule: #1F3159;
-  --rule-2: #2F4778;
-  --accent: #9CC0FF;
+  --rule-2: #527290;
+  --accent: #9CD4E6;
   --accent-h: #C0D6FF;
   --accent-soft: #16264A;
   --on-accent: #060D1C;
@@ -92,8 +92,8 @@
   --ok-soft: #143126;
   --warn: #E8C979;
   --warn-soft: #33301A;
-  --grid: rgba(190, 214, 255, .055);
-  --grid-major: rgba(190, 214, 255, .095);
+  --grid: rgba(190, 214, 255, .018);
+  --grid-major: rgba(190, 214, 255, .04);
   --shadow-1: none;
   --shadow-2: 3px 3px 0 rgba(0, 0, 0, .28);
   --squiggle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='6'%3E%3Cpath d='M0 4.2 c 7 -2.4 13 2 20 -.4 s 13 -2.6 20 .2 s 13 1.6 20 -.6' fill='none' stroke='%239CC0FF' stroke-width='1.1'/%3E%3C/svg%3E");
@@ -195,7 +195,7 @@ code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .92em;
   position: relative;
   background: var(--surface);
   border: 1px solid var(--rule-2);
-  border-radius: 0;
+  border-radius: var(--r);
   padding: 20px;
 }
 /* corner ticks, the way a drawing is registered on the sheet */
@@ -243,7 +243,7 @@ code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .92em;
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  background: var(--surface); border: 1px solid var(--rule-2); border-radius: 0;
+  background: var(--surface); border: 1px solid var(--rule-2); border-radius: var(--r-s);
   padding: 8px 15px; font-size: 15px; font-weight: 600; cursor: pointer;
   white-space: nowrap; transition: box-shadow .12s, border-color .12s, background .12s;
 }
@@ -288,7 +288,7 @@ label.f {
 label.f .plain { letter-spacing: 0; text-transform: none; font-weight: 400; font-size: 12.5px; }
 input[type=text], input[type=url], input[type=date], input[type=number], input[type=time], select, textarea {
   width: 100%; background: var(--surface); color: var(--ink);
-  border: 1px solid var(--rule-2); border-radius: 0;
+  border: 1px solid var(--rule-2); border-radius: var(--r-s);
   padding: 8px 11px; line-height: 1.4; font-size: 15.5px;
 }
 textarea { resize: vertical; min-height: 70px; }
@@ -312,7 +312,7 @@ input[type=file] { font-size: 14px; border: 1px dashed var(--rule-2); padding: 7
 .chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .chip {
   font-size: 13px; color: var(--ink-2); background: var(--surface);
-  border: 1px solid var(--rule); border-radius: 0; padding: 3px 9px; cursor: pointer;
+  border: 1px solid var(--rule); border-radius: var(--r-s); padding: 3px 9px; cursor: pointer;
 }
 .chip:hover { color: var(--ink); border-color: var(--ink-3); }
 .chip.on {
@@ -618,6 +618,199 @@ tr:last-child td { border-bottom: none; }
   .card { break-inside: avoid; }
 }
 
+/* ---------- readable work surfaces and consistent interaction ---------- */
+[hidden] { display: none !important; }
+.dialog-open, .dialog-open body { overflow: hidden; }
+button, a, input, select, textarea, summary { touch-action: manipulation; }
+button, summary, a { -webkit-tap-highlight-color: color-mix(in srgb, var(--accent) 16%, transparent); }
+input[type=search] { width: 100%; background: var(--surface); color: var(--ink); border: 1px solid var(--rule-2); padding: 10px 12px; font: inherit; border-radius: var(--r-s); }
+input, select, textarea { scroll-margin-block: 90px; }
+.btn, .btn.sm, .btn.icon, .chip { min-height: 44px; min-width: 44px; font-size: 14px; }
+.btn.primary { box-shadow: 0 2px 0 color-mix(in srgb, var(--ink) 14%, transparent); }
+:root[data-theme=dark] .btn.primary { box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 12%, transparent); }
+.chip { padding: 8px 12px; }
+.stepper button { flex: 0 0 48px; width: 48px; min-height: 48px; }
+.stepper input { flex: 1 1 0; width: 0; min-width: 0; min-height: 48px; font-size: 21px; }
+label.f { font-size: 13px; letter-spacing: .025em; text-transform: none; color: var(--ink-2); }
+.hint, .mini { font-size: 14px; }
+h3, .kpi .k { font-size: 12px; letter-spacing: .07em; }
+.kpi .n { font-size: 14px; white-space: normal; }
+.tag { font-size: 11px; letter-spacing: .05em; }
+p.sub { color: var(--ink-2); }
+.card { border-color: var(--rule); box-shadow: 2px 3px 0 color-mix(in srgb, var(--ink) 4%, transparent); }
+.card::before, .card::after { opacity: .55; }
+.linkline a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; }
+.disclosure { border-top: 1px solid var(--rule); padding: 0; }
+.disclosure > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; cursor: pointer; font-size: 15px; color: var(--accent); font-weight: 600; list-style: none; }
+.disclosure > summary::-webkit-details-marker { display: none; }
+.disclosure > summary .mini { font-weight: 400; text-align: right; }
+.disclosure[open] > summary { margin-bottom: 10px; }
+.disclosure > .field:last-child { margin-bottom: 16px; }
+.disclosure[open] > .chips { margin-bottom: 14px; }
+.topic-options { margin: 10px 0 16px; }
+.log-numbers { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.presets { margin-top: 8px; }
+.log-footer { flex-direction: column; align-items: stretch; }
+.log-footer .mini { text-align: center; }
+.log-footer .btn { width: 100%; min-height: 48px; }
+.log-form .field { margin-bottom: 18px; }
+#modal-root { top: var(--visual-top, 0px); bottom: auto; height: var(--visual-height, 100dvh); align-items: center; justify-content: center; }
+#modal-root.on { display: flex; }
+.modal, .modal.wide { display: flex; flex-direction: column; padding: 0; margin: 0; width: min(640px, 94vw); max-height: calc(var(--visual-height, 100dvh) - 48px); overflow: hidden; }
+.modal.wide { width: min(880px, 96vw); }
+.modal-head { display: flex; align-items: center; gap: 16px; justify-content: space-between; flex: none; padding: 16px 22px; border-bottom: 1px solid var(--rule); background: var(--raise); }
+.modal-head h2 { margin: 0; font-size: 22px; }
+.modal-head h2:focus { outline: none; }
+.modal-head .btn { flex: none; }
+.modal-body { padding: 22px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.modal .modal-foot { flex: none; margin: 0; padding: 14px 22px; border-top: 1px solid var(--rule); background: var(--raise); }
+.modal .modal-foot .spacer { min-width: 0; }
+.modal-body .log-form > h2 { display: none; }
+#toasts { pointer-events: none; }
+.toast { pointer-events: auto; }
+.home-overview { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
+.home-goal { display: flex; align-items: center; gap: 22px; }
+.home-goal .ring { margin: 0; flex: none; }
+.home-goal .v { font-size: 36px; }
+.home-readings { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.home-readings .kpi { justify-content: center; }
+.continue-card { border-top: 3px solid var(--accent); gap: 12px; }
+.continue-card .ttl { font-size: 20px; white-space: normal; }
+.continue-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.activity-list .empty { padding: 20px; }
+.course-tools { display: grid; grid-template-columns: minmax(0, 1fr) minmax(170px, 220px); gap: 12px; margin: 18px 0 8px; }
+.course-archive > summary { font-size: 19px; padding: 16px 0; }
+.course-archive { margin-top: 26px; }
+.course-card .ttl { white-space: normal; overflow-wrap: anywhere; }
+.course-card .bar { margin-top: 2px; }
+.course-card .details-content { padding-bottom: 12px; }
+.course-card .management { display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 12px; }
+.course-card .management .btn.danger { margin-left: auto; }
+.course-card > .row.mini { gap: 6px; }
+.receipt { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
+.receipt > div { flex: 1 1 200px; }
+.receipt-actions { display: flex; gap: 6px; }
+.filter-panel { margin: 14px 0; }
+.filter-panel > .row { margin-bottom: 6px; }
+.filter-panel input[type=search] { flex: 1 1 220px; }
+.filter-fields { display: flex; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; }
+.filter-fields > .field { flex: 1 1 150px; margin: 0; }
+.map-tools { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; align-items: end; }
+.map-tools .field { flex: 1 1 150px; margin: 0; }
+.segmented { display: flex; gap: 0; }
+.segmented .btn[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.map-list { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 12px; }
+.map-list .map-entry { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; white-space: normal; padding: 14px; }
+.map-entry .mini { display: block; font-weight: 400; margin-top: 4px; }
+.map-entry .swatch { width: 8px; align-self: stretch; flex: none; background: var(--course-color); }
+#map-ctl .btn { min-height: 44px; font-size: 14px; padding: 8px 10px; }
+#map { touch-action: none; }
+.cal .day { appearance: none; font: inherit; color: var(--ink); text-align: left; min-width: 0; border-top: 0; border-left: 0; border-radius: 0; }
+.cal .day .d { font-size: 14px; color: var(--ink-2); }
+.cal .day.today .d { font-weight: 700; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.cal .day.sel { outline: 2px solid var(--accent); background-color: var(--accent-soft) !important; }
+.cal .day.today { outline: none; }
+.cal .day.today.sel { outline: 2px solid var(--accent); }
+.cal .day:focus-visible { position: relative; outline: 2px solid var(--ink); outline-offset: -3px; z-index: 1; }
+.storage-summary { padding: 14px 0; border-top: 1px solid var(--rule); }
+#pomo-panel { width: 340px; }
+#pomo-panel .head, #pomo-panel .phase, #pomo-mini .lbl { font-size: 12px; letter-spacing: .06em; }
+#pomo-mini { gap: 8px; }
+#pomo-mini .t { min-width: 54px; }
+#pomo-mini .btn { padding: 8px 10px; }
+.timer-course { margin-bottom: 12px; text-align: center; color: var(--ink-2); }
+
+@media (max-width: 900px) {
+  #tabbar .tab { font-size: 12.5px; text-transform: none; letter-spacing: .01em; }
+  #tabbar .tab.log .disc { font-size: 13px; text-transform: none; letter-spacing: 0; }
+  #topbrand .pg { font-size: 16px; }
+  #view { padding-top: 20px; }
+  .home-overview { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .home-readings { gap: 12px; }
+  .home-readings .card { padding: 12px 15px; }
+  .home-goal { gap: 18px; }
+  .kpi .k { font-size: 12px; letter-spacing: .04em; }
+  .kpi .n { font-size: 13px; }
+  .card { padding: 18px; }
+  .mini, .hint, p.sub { font-size: 14px; }
+  .btn, .btn.sm, .btn.icon, .chip { min-height: 44px; font-size: 14px; }
+  .stepper button { flex-basis: 48px; width: 48px; }
+  input[type=search] { font-size: 16px; }
+  .cal .day { min-height: 50px; padding: 5px; }
+  .cal .day .d { font-size: 14px; }
+  #pomo-panel { width: auto; }
+  #map-ctl { gap: 6px; }
+  .map-tools .field { flex-basis: 140px; }
+}
+@media (max-width: 620px) {
+  #modal-root { align-items: flex-end; }
+  .modal, .modal.wide { position: relative; inset: auto; width: 100%; max-height: calc(var(--visual-height, 100dvh) - 12px); border-left: 0; border-right: 0; border-bottom: 0; }
+  .modal-head { padding: 12px 16px; }
+  .modal-head h2 { font-size: 20px; }
+  .modal-body { padding: 16px; scrollbar-gutter: auto; }
+  .modal .modal-foot { padding: 12px 16px max(12px, env(safe-area-inset-bottom)); }
+  .modal-foot .btn.primary { flex: 1 1 auto; }
+  .log-numbers { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .presets { display: grid; grid-template-columns: repeat(3,1fr); }
+  .home-goal .v { font-size: 32px; }
+  .continue-actions .btn.primary { flex: 1 1 auto; }
+  .course-tools { grid-template-columns: minmax(0, 1fr); }
+  .course-card .details-content .tag { white-space: normal; }
+  .card { padding: 16px; }
+  .map-list { grid-template-columns: minmax(0, 1fr); }
+  #map { height: 420px; }
+  #map-ctl .btn { flex: 1 1 auto; }
+  .map-tools .field { flex-basis: 100%; }
+  #topbar { min-height: 60px; gap: 4px; }
+  #pomo-mini { gap: 6px; }
+  #pomo-mini .t { font-size: 17px; min-width: 48px; }
+  #pomo-mini .btn { padding: 8px; min-width: 46px; }
+  #pomo-mini .lbl { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+  .scrim { backdrop-filter: none; }
+}
+@media print {
+  #tabbar, #toasts, #modal-root, .continue-actions, .course-tools { display: none !important; }
+  .card { box-shadow: none; }
+}
+
+.calendar-nav { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 8px; align-items: center; }
+.calendar-nav h2 { text-align: center; }
+.calendar-summary { margin: 8px 0 12px; gap: 8px; }
+.cal .day .row { display: flex; }
+@media (max-width:620px) { .calendar-nav .btn { padding: 8px; font-size: 13px; } .cal .day .m { font-size: 10px; } .cal .day .row { display: none; } }
+
+@media (pointer:coarse) { #map { touch-action: pan-y; } #map.drag { touch-action: none; } }
+
+.map-tools { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 12px; }
+.map-tools .map-search-field { grid-column: 1 / -1; }
+.map-entry > span:last-child { flex: 1; min-width: 0; }
+
+.map-touch-control { display: none; }
+@media (max-width:900px) { .map-touch-control { display: inline-flex; } #map { touch-action: pan-y; } #map.map-explore { touch-action: none; } }
+
+/* Soft corners retain the drafted frames without a sharp, boxy edge. */
+.card, #map-wrap, #pomo-panel { border-radius: var(--r); }
+.card::before, .card::after { background-position: 14px 0, calc(100% - 14px) 0; }
+.modal, .modal.wide { border-radius: 16px; }
+.empty, .toast, #map-tip { border-radius: 8px; }
+.pill { border-radius: 5px; }
+.tag { border-radius: 4px; }
+.bar { border-radius: 4px; }
+.cal { border-radius: 8px; overflow: hidden; }
+#nav a { border-radius: var(--r-s); }
+#tabbar .tab.log .disc { border-radius: 10px; }
+.stepper input { border-radius: 0; }
+.stepper button:first-child { border-radius: var(--r-s) 0 0 var(--r-s); }
+.stepper button:last-child { border-radius: 0 var(--r-s) var(--r-s) 0; }
+.segmented .btn:first-child { border-radius: var(--r-s) 0 0 var(--r-s); }
+.segmented .btn:last-child { border-radius: 0 var(--r-s) var(--r-s) 0; }
+@media (max-width: 620px) {
+  .modal, .modal.wide { border-radius: 16px 16px 0 0; }
+}
+
 </style>
 </head>
 <body>
@@ -630,7 +823,7 @@ tr:last-child td { border-bottom: none; }
     <nav id="nav">
       <a href="#/dashboard">Dashboard</a>
       <a href="#/calendar">Log &amp; Calendar</a>
-      <a href="#/classroom">Classroom</a>
+      <a href="#/classroom">Courses</a>
       <a href="#/resources">Resources</a>
       <a href="#/notebooks">Notebooks</a>
       <a href="#/map">Brain Map</a>
@@ -649,13 +842,13 @@ tr:last-child td { border-bottom: none; }
       <div id="topstats"></div>
       <div id="pomo-mini"></div>
     </header>
-    <main id="view"></main>
+    <main id="view" tabindex="-1"></main>
   </div>
 </div>
 
 <div id="pomo-panel" class="hidden"></div>
 <div id="modal-root"><div class="scrim"></div><div class="modal" id="modal-box"></div></div>
-<div id="toasts"></div>
+<div id="toasts" aria-label="Notifications"></div>
 <nav id="tabbar" aria-label="Sections"></nav>
 
 <!-- Your data, committed with the repo. A <script> tag (not fetch) so it also
@@ -760,7 +953,7 @@ function blankDB() {
     resources: [],
     notebooks: [],
     pomo: null,
-    pomoCfg: { focus: 25, short: 5, long: 15, cycle: 4, autoLog: true, countAsSession: true, sound: true },
+    pomoCfg: { focus: 25, short: 5, long: 15, cycle: 4, autoLog: true, countAsSession: false, sound: true },
     lastCourseId: null
   };
 }
@@ -881,6 +1074,7 @@ function newCourse(o) {
     link: o.link || '',
     extraLinks: o.extraLinks || [],
     categories: o.categories || [],
+    unit: o.unit || 'lectures',
     totalSessions: num(o.totalSessions, 0),
     doneOffset: num(o.doneOffset, 0),   // progress that happened before tracking
     deadline: o.deadline || '',
@@ -907,6 +1101,8 @@ function tone(hex) {
   return 'rgb(' + mix((v >> 16) & 255, 226) + ',' + mix((v >> 8) & 255, 238) + ',' + mix(v & 255, 255) + ')';
 }
 function courseColor(id) { var c = courseById(id); return tone(c ? c.color : '#8892b0'); }
+function courseUnit(c) { return (c && c.unit) || 'units'; }
+function courseUnits(c, n) { var unit = courseUnit(c); return n === 1 && /^(units|lectures|chapters|exercises|lessons|sessions)$/.test(unit) ? unit.slice(0, -1) : unit; }
 function activeCourses() { return DB.courses.filter(function (c) { return c.status === 'active'; }); }
 
 /* progress = pre-existing offset + everything logged since */
@@ -1025,6 +1221,8 @@ function toast(msg, ms, actionLabel, actionFn) {
   var wrap = $('#toasts');
   var t = document.createElement('div');
   t.className = 'toast';
+  t.setAttribute('role', 'status');
+  t.setAttribute('aria-live', 'polite');
   t.innerHTML = '<span>' + msg + '</span>';
   if (actionLabel) {
     var b = document.createElement('button');
@@ -1037,26 +1235,83 @@ function toast(msg, ms, actionLabel, actionFn) {
   setTimeout(function () { t.remove(); }, ms || 2600);
 }
 
-/* modal: html string in, optional onMount(box); Esc / scrim closes */
+/* Every dialog uses the same fixed header, scrollable body and action footer. */
+var MODAL_RETURN = null;
+function labelFields(root) {
+  $$('label.f', root).forEach(function (label) {
+    if (label.htmlFor) return;
+    var field = label.closest('.field') || label.parentElement;
+    var input = field.querySelector('input:not([type=hidden]),select,textarea');
+    if (!input) return;
+    if (!input.id) input.id = 'field-' + uid();
+    label.htmlFor = input.id;
+    var step = input.closest('.stepper');
+    if (step) $$('button', step).forEach(function (b) {
+      b.setAttribute('aria-label', (num(b.getAttribute('data-by')) < 0 ? 'Decrease ' : 'Increase ') + label.textContent.trim());
+    });
+  });
+}
 function modal(html, onMount, wide) {
   var root = $('#modal-root'), box = $('#modal-box');
+  if (!root.classList.contains('on')) MODAL_RETURN = document.activeElement;
+  $('#pomo-panel').classList.add('hidden');
   box.className = 'modal' + (wide ? ' wide' : '');
   box.innerHTML = html;
-  if (isNarrow() && !box.querySelector('.modal-foot')) {
-    var x = document.createElement('button');
-    x.type = 'button'; x.className = 'sheet-x'; x.setAttribute('data-act', 'modal-close');
-    x.setAttribute('aria-label', 'Close'); x.textContent = 'Close';
-    box.insertBefore(x, box.firstChild);
-  }
+  var title = box.querySelector('h2');
+  var head = document.createElement('header'); head.className = 'modal-head';
+  if (!title) { title = document.createElement('h2'); title.textContent = 'Study Tracker'; }
+  title.id = 'modal-title'; title.tabIndex = -1;
+  head.appendChild(title);
+  var close = document.createElement('button'); close.className = 'btn sm'; close.type = 'button';
+  close.setAttribute('data-act', 'modal-close'); close.textContent = 'Close'; head.appendChild(close);
+  var footer = box.querySelector('.modal-foot');
+  if (footer) footer.remove();
+  var body = document.createElement('div'); body.className = 'modal-body';
+  while (box.firstChild) body.appendChild(box.firstChild);
+  box.appendChild(head); box.appendChild(body); if (footer) box.appendChild(footer);
+  box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true');
+  box.setAttribute('aria-labelledby', 'modal-title');
   root.classList.add('on');
+  ['#app', '#tabbar', '#pomo-panel'].forEach(function (sel) { $(sel).inert = true; });
+  document.documentElement.classList.add('dialog-open');
   if (onMount) onMount(box);
-  var first = box.querySelector('input,select,textarea,button');
-  if (first && first.focus && !isNarrow()) setTimeout(function () { first.focus(); }, 30);
+  labelFields(box);
+  title.focus({ preventScroll: true });
 }
-function modalClose() {
-  $('#modal-root').classList.remove('on');
-  $('#modal-box').innerHTML = '';
+function modalClose(discardDraft) {
+  var root = $('#modal-root');
+  if (!root.classList.contains('on')) return;
+  if (!discardDraft && typeof logKeepDraft === 'function') logKeepDraft();
+  root.classList.remove('on'); $('#modal-box').innerHTML = '';
+  ['#app', '#tabbar', '#pomo-panel'].forEach(function (sel) { $(sel).inert = false; });
+  document.documentElement.classList.remove('dialog-open');
+  var target = MODAL_RETURN && MODAL_RETURN.isConnected ? MODAL_RETURN : (window.matchMedia('(max-width: 900px)').matches ? $('#tabbar [data-act="quick-log"]') : $('#view'));
+  if (target) target.focus({ preventScroll: true });
 }
+document.addEventListener('keydown', function (e) {
+  if (!$('#modal-root').classList.contains('on')) return;
+  if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); modalClose(); return; }
+  if (e.key !== 'Tab') return;
+  var items = $$('button,a[href],input,select,textarea,summary,[tabindex="0"]', $('#modal-box'))
+    .filter(function (el) { var closed = el.closest('details:not([open])');
+      return !el.disabled && (!closed || el.closest('summary') === closed.querySelector('summary')) && el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden'; });
+  if (!items.length) { e.preventDefault(); return; }
+  var first = items[0], last = items[items.length - 1], active = document.activeElement;
+  if (!items.includes(active) || (!e.shiftKey && active === last) || (e.shiftKey && active === first)) {
+    e.preventDefault(); (e.shiftKey ? last : first).focus();
+  }
+});
+function visualViewportSize() {
+  var vv = window.visualViewport;
+  document.documentElement.style.setProperty('--visual-height', (vv ? vv.height : window.innerHeight) + 'px');
+  document.documentElement.style.setProperty('--visual-top', (vv ? vv.offsetTop : 0) + 'px');
+}
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', visualViewportSize);
+  window.visualViewport.addEventListener('scroll', visualViewportSize);
+}
+window.addEventListener('resize', visualViewportSize);
+visualViewportSize();
 function confirmBox(title, body, okLabel, onOk) {
   modal(
     '<h2>' + esc(title) + '</h2><p class="sub">' + body + '</p>' +
@@ -1440,16 +1695,16 @@ function storeLine() {
     (STORE.dirty ? ' <span style="color:var(--sale)">Changes so far are only in this browser.</span>' : '');
 }
 
+function storageSummaryHTML() {
+  var status = STORE.error ? 'Backup file needs attention' : STORE.file && STORE.granted
+    ? (STORE.dirty ? 'Saving your data file…' : 'Saved on this device and to your data file') : 'Saved on this device';
+  return '<p class="mini">' + status + '</p><p class="mini">' +
+    (DB.lastExport ? 'Last backup: ' + fmtDate(DB.lastExport) : 'No exported backup yet') +
+    '</p><a class="btn sm ghost" href="#/data" data-act="more-go">Backup options</a>';
+}
 function storeRefreshLine() {
-  var el = $('#store-line');
-  if (el) el.innerHTML = storeLine();
-  var foot = $('#store-foot');
-  if (foot) {
-    foot.innerHTML = (STORE.file && STORE.granted)
-      ? 'Writing to <b>' + esc(STORE.name) + '</b>. <a href="#/data">Data</a>.'
-      : (STORE.dirty ? '<b>Unsaved</b> to the repo file. <a href="#/data">Save it</a>.'
-                     : 'Working copy in this browser. <a href="#/data">Data</a>.');
-  }
+  var el = $('#store-line'); if (el) el.innerHTML = storeLine();
+  var foot = $('#store-foot'); if (foot) foot.innerHTML = storageSummaryHTML();
 }
 
 /* the buttons for the Data page, in the order that makes sense right now */
@@ -1668,163 +1923,130 @@ function timeByTopic(list, maxSlices) {
 }
 
 /* ===== 10-log.js ===== */
-/* =============================================================================
-   10-log — the quick-log form (the thing you touch every day) and session edit.
+/* Quick logging, browser-local drafts and session editing.
+   The fixed action footer resolves its owning form inside the dialog. */
 
-   Design goal: log a session in ~3 keystrokes. The form remembers the last
-   course, defaults minutes to your usual session length, and Enter saves.
-
-   IMPORTANT — why this file looks paranoid about which form it is reading:
-   the same form can be on screen twice (inline on the Dashboard, and inside a
-   dialog opened from anywhere else), and a dialog can be dismissed without the
-   page re-rendering. So the form is NEVER resolved from a module-level
-   variable; it is resolved from the DOM, starting at the button that was
-   clicked (`[data-logform]` ancestor) and reading fields by `data-role` inside
-   that one element. If the form cannot be resolved, saving refuses rather than
-   quietly writing default values.
-   ========================================================================== */
-
-var LOGF = { courseId: null, date: null, topics: [], p: 'log' };
-
+var LOGF = { courseId: null, date: null, topics: [], p: 'log', count: 1, minutes: 45, note: '', receiptId: null };
+var LOG_DRAFT_KEY = STORE_KEY + '-log-draft';
 function logReset(dateIso) {
   LOGF.courseId = DB.lastCourseId && courseById(DB.lastCourseId) && courseById(DB.lastCourseId).status === 'active'
-    ? DB.lastCourseId
-    : (activeCourses()[0] ? activeCourses()[0].id : null);
-  LOGF.date = dateIso || today();
-  LOGF.topics = [];
+    ? DB.lastCourseId : (activeCourses()[0] ? activeCourses()[0].id : null);
+  LOGF.date = dateIso || today(); LOGF.topics = []; LOGF.count = 1;
+  LOGF.minutes = DB.profile.sessionMinutes || 45; LOGF.note = ''; LOGF.receiptId = null;
 }
-
-/* ---- resolving the live form ---- */
-
-/* the form the user is actually in: the one containing the clicked control,
-   else the one inside an open dialog, else the one on the page */
 function logRoot(el) {
-  if (el && el.closest) {
-    var owned = el.closest('[data-logform]');
-    if (owned) return owned;
-  }
-  if ($('#modal-root').classList.contains('on')) {
-    var inModal = $('#modal-box [data-logform]');
-    if (inModal) return inModal;
-  }
-  return $('[data-logform]');
+  var owned = el && el.closest ? el.closest('[data-logform]') : null;
+  return owned || $('#modal-box [data-logform]') || $('[data-logform]');
 }
-function logField(root, role) { return root ? root.querySelector('[data-role="' + role + '"]') : null; }
+function logField(root, role) {
+  if (!root) return null;
+  return root.querySelector('[data-role="' + role + '"]') ||
+    (role === 'echo' && root.closest('.modal') ? root.closest('.modal').querySelector('[data-role="echo"]') : null);
+}
 function logNum(root, role, dflt) {
-  var i = logField(root, role);
-  if (!i) return null;                       // missing field: the caller decides
-  var n = parseFloat(i.value);
-  return isFinite(n) ? n : dflt;
+  var input = logField(root, role);
+  if (!input) return null;
+  var value = parseFloat(input.value); return isFinite(value) ? value : dflt;
 }
+function logKeepDraft() {
+  var root = $('#modal-box [data-logform]');
+  if (!root) return;
+  LOGF.courseId = logField(root, 'course').value; LOGF.date = logField(root, 'date').value;
+  LOGF.count = logNum(root, 'count', 0); LOGF.minutes = logNum(root, 'mins', 0);
+  LOGF.note = logField(root, 'note').value;
+  try { localStorage.setItem(LOG_DRAFT_KEY, JSON.stringify(LOGF)); } catch (e) { /* drafts are optional */ }
+}
+function logRestoreDraft() {
+  try {
+    var draft = JSON.parse(localStorage.getItem(LOG_DRAFT_KEY));
+    if (!draft || !courseById(draft.courseId) || courseById(draft.courseId).status === 'dropped') return false;
+    Object.assign(LOGF, draft); LOGF.topics = Array.isArray(draft.topics) ? draft.topics : [];
+    return true;
+  } catch (e) { return false; }
+}
+function logForgetDraft() { try { localStorage.removeItem(LOG_DRAFT_KEY); } catch (e) { /* ignore */ } }
 
 function topicPickerHTML(courseId, chosen) {
-  var c = courseById(courseId);
-  if (!c) return '';
-  var cats = c.categories || [];
-  var html = '<label class="f">Topics covered <span class="plain">— these grow your brain map</span></label>';
-  if (!cats.length) {
-    html += '<div class="hint" style="margin:0 0 8px">No topics on this course yet. Add a few — they become the nodes of your map.</div>';
-  }
-  html += '<div class="chips" style="margin-bottom:8px">';
-  cats.forEach(function (t) {
-    var on = chosen.indexOf(t) >= 0;
-    html += '<button type="button" class="chip' + (on ? ' on' : '') + '" data-act="log-topic" data-topic="' + esc(t) + '">' + esc(t) + '</button>';
-  });
-  html += '<button type="button" class="chip" data-act="log-newtopic">+ add topic</button>';
-  html += '</div>';
-  return html;
+  var c = courseById(courseId); if (!c) return '';
+  return '<label class="f" for="' + LOGF.p + '-topic-search">Find a topic</label>' +
+    '<input type="search" id="' + LOGF.p + '-topic-search" data-role="topic-search" placeholder="Search topics…">' +
+    '<div class="chips topic-options">' + (c.categories || []).map(function (t) {
+      var on = chosen.indexOf(t) >= 0;
+      return '<button type="button" class="chip' + (on ? ' on' : '') + '" aria-pressed="' + on +
+        '" data-act="log-topic" data-topic="' + esc(t) + '">' + esc(t) + '</button>';
+    }).join('') + '<button type="button" class="chip" data-act="log-newtopic">Add topic</button></div>';
 }
-
-/* opts.prefix only keeps the stepper/chip targets unique between two copies */
 function logCardHTML(opts) {
-  opts = opts || {};
-  var p = opts.prefix || 'log';
-  LOGF.p = p;
-  var courses = DB.courses.filter(function (c) { return c.status !== 'dropped'; });
-  if (!courses.length) {
-    return '<div class="card"><h2>Log a session</h2><div class="empty">Add a course first — ' +
-      '<a href="#/classroom">go to Classroom</a>.</div></div>';
+  opts = opts || {}; var p = opts.prefix || 'log'; LOGF.p = p;
+  if (!DB.courses.some(function (c) { return c.status !== 'dropped'; })) {
+    return '<h2>Log a session</h2><div class="empty">Add a course first. <a href="#/classroom" data-act="modal-close">Open Courses</a></div>';
   }
-  var mins = DB.profile.sessionMinutes || 45;
-  return '' +
-  '<div class="card" id="' + p + '-card" data-logform="' + p + '">' +
-    '<div class="row" style="margin-bottom:14px"><h2 style="margin:0">Log a session</h2>' +
-      '<span class="spacer"></span>' +
-      '<span class="mini">Enter saves</span></div>' +
-    '<div class="grid" style="gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">' +
-      '<div class="field"><label class="f">Course</label>' +
-        '<select data-role="course">' + courseOptions(LOGF.courseId) + '</select></div>' +
-      '<div class="field"><label class="f">Date</label>' +
-        '<input type="date" data-role="date" value="' + esc(LOGF.date || today()) + '" max="' + today() + '"></div>' +
-    '</div>' +
-    '<div class="grid" style="gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">' +
-      '<div class="field"><label class="f">Sessions / lectures done</label>' + stepper(p + '-count', 1, 1, 0, 99, 'count') +
-        '<div class="chips" style="margin-top:8px">' +
-          [1, 2, 3, 5].map(function (n) { return '<button type="button" class="chip" data-act="set-num" data-target="' + p + '-count" data-val="' + n + '">' + n + '</button>'; }).join('') +
-        '</div></div>' +
-      '<div class="field"><label class="f">Minutes studied</label>' + stepper(p + '-mins', mins, 5, 0, 1440, 'mins') +
-        '<div class="chips" style="margin-top:8px">' +
-          [15, 25, 45, 60, 90, 120].map(function (n) { return '<button type="button" class="chip" data-act="set-num" data-target="' + p + '-mins" data-val="' + n + '">' + n + '</button>'; }).join('') +
-        '</div></div>' +
-    '</div>' +
-    '<div class="field" data-role="topics">' + topicPickerHTML(LOGF.courseId, LOGF.topics) + '</div>' +
-    '<div class="field"><label class="f">Note (optional)</label>' +
-      '<input type="text" data-role="note" placeholder="e.g. finished Ch.4 problems, revisit Bayes"></div>' +
-    '<div class="row"><button class="btn primary" data-act="log-save">Save session</button>' +
-      '<span class="mini" data-role="echo"></span></div>' +
-  '</div>';
+  var course = courseById(LOGF.courseId), date = LOGF.date || today();
+  return '<div data-logform="' + p + '" class="log-form">' +
+    '<h2>Log a session</h2>' +
+    '<div class="field"><label class="f" for="' + p + '-course">Course</label>' +
+      '<select id="' + p + '-course" data-role="course">' + courseOptions(LOGF.courseId) + '</select></div>' +
+    '<details class="disclosure log-date"' + (date !== today() ? ' open' : '') + '><summary>' +
+      '<span data-role="date-label">' + (date === today() ? 'Today' : fmtDate(date)) + '</span><span class="mini">Change date</span></summary>' +
+      '<div class="field"><label class="f" for="' + p + '-date">Study date</label>' +
+      '<input type="date" id="' + p + '-date" data-role="date" value="' + esc(date) + '" max="' + today() + '"></div></details>' +
+    '<div class="grid log-numbers">' +
+      '<div class="field"><label class="f">Study time · minutes</label>' + stepper(p + '-mins', LOGF.minutes, 5, 0, 1440, 'mins') +
+        '<div class="chips presets">' + [25, 45, 60].map(function (n) { return '<button type="button" class="chip" data-act="set-num" data-target="' + p + '-mins" data-val="' + n + '">' + n + ' min</button>'; }).join('') + '</div></div>' +
+      '<div class="field"><label class="f" data-role="unit-label">' + esc(courseUnit(course)) + ' completed</label>' + stepper(p + '-count', LOGF.count, 1, 0, 9999, 'count') +
+        '<div class="chips presets">' + [0, 1, 2].map(function (n) { return '<button type="button" class="chip" data-act="set-num" data-target="' + p + '-count" data-val="' + n + '">' + n + '</button>'; }).join('') + '</div></div>' +
+    '</div><details class="disclosure" data-role="topic-details"><summary><span>Topics</span><span class="mini" data-role="topic-summary">' +
+      (LOGF.topics.length ? LOGF.topics.length + ' selected' : 'Optional · grow your map') + '</span></summary>' +
+      '<div data-role="topics">' + topicPickerHTML(LOGF.courseId, LOGF.topics) + '</div></details>' +
+    '<details class="disclosure"' + (LOGF.note ? ' open' : '') + '><summary>Add a note <span class="mini">Optional</span></summary>' +
+      '<div class="field"><label class="f" for="' + p + '-note">Note</label><textarea id="' + p + '-note" data-role="note" placeholder="What did you work on?">' + esc(LOGF.note) + '</textarea></div></details>' +
+    '<div class="modal-foot log-footer"><span class="mini" data-role="echo"></span><button class="btn primary" data-act="log-save">Save session</button></div></div>';
 }
-
 function wireLog() {
-  var root = $('[data-logform="' + LOGF.p + '"]');
-  if (!root) return;
+  var root = $('#modal-box [data-logform]') || $('[data-logform]'); if (!root) return;
   var sel = logField(root, 'course');
   sel.onchange = function () {
-    LOGF.courseId = sel.value;
-    LOGF.topics = [];
-    logField(root, 'topics').innerHTML = topicPickerHTML(LOGF.courseId, LOGF.topics);
-    updateLogEcho(root);
+    LOGF.courseId = sel.value; LOGF.topics = [];
+    logField(root, 'topics').innerHTML = topicPickerHTML(LOGF.courseId, []);
+    logField(root, 'unit-label').textContent = courseUnit(courseById(sel.value)) + ' completed';
+    labelFields(root); updateLogEcho(root); logKeepDraft();
   };
-  var d = logField(root, 'date');
-  if (d) d.onchange = function () { LOGF.date = d.value; updateLogEcho(root); };
-  ['count', 'mins'].forEach(function (role) {
-    var i = logField(root, role);
-    if (i) i.addEventListener('input', function () { updateLogEcho(root); });
+  root.addEventListener('input', function (e) {
+    if (e.target.getAttribute('data-role') === 'topic-search') {
+      var q = e.target.value.toLowerCase();
+      $$('[data-act="log-topic"]', root).forEach(function (b) { b.hidden = b.textContent.toLowerCase().indexOf(q) < 0; });
+      return;
+    }
+    updateLogEcho(root); logKeepDraft();
   });
+  logField(root, 'date').onchange = function () { LOGF.date = this.value; updateLogEcho(root); logKeepDraft(); };
   root.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-      e.preventDefault();
-      ACTIONS['log-save'](e.target);          // pass the field, so the form resolves from it
+    if (e.key === 'Enter' && e.target.tagName === 'INPUT' && /^(number|text)$/.test(e.target.type) && e.target.getAttribute('data-role') !== 'newtopic') {
+      e.preventDefault(); ACTIONS['log-save'](e.target);
     }
   });
-  updateLogEcho(root);
+  labelFields(root); updateLogEcho(root);
 }
-
 function updateLogEcho(root) {
-  root = root || logRoot(null);
-  var e = logField(root, 'echo');
-  if (!e) return;
-  var sel = logField(root, 'course');
-  var c = courseById(sel ? sel.value : LOGF.courseId);
-  if (!c) { e.textContent = ''; return; }
-  var pr = progressOf(c);
-  var add = logNum(root, 'count', 0) || 0, mins = logNum(root, 'mins', 0) || 0;
-  e.innerHTML = c.totalSessions
-    ? 'After saving: <b>' + (pr.done + add) + ' / ' + c.totalSessions + '</b> sessions, <b>' + fmtMins(pr.minutes + mins) + '</b> tracked'
-    : 'After saving: <b>' + fmtMins(pr.minutes + mins) + '</b> tracked on ' + esc(c.name);
+  root = root || logRoot(null); var echo = logField(root, 'echo'); if (!echo) return;
+  var c = courseById(logField(root, 'course').value); if (!c) return;
+  var count = logNum(root, 'count', 0), mins = logNum(root, 'mins', 0), progress = progressOf(c);
+  echo.textContent = fmtMins(mins) + ' · ' + count + ' ' + courseUnits(c, count) +
+    (c.totalSessions ? ' · ' + (progress.done + count) + '/' + c.totalSessions + ' complete' : '');
+  var summary = logField(root, 'topic-summary'); if (summary) summary.textContent = LOGF.topics.length ? LOGF.topics.length + ' selected' : 'Optional · grow your map';
+  var d = logField(root, 'date'); var dl = logField(root, 'date-label');
+  if (dl && d.value) dl.textContent = d.value === today() ? 'Today' : fmtDate(d.value);
 }
-
 ACTIONS['set-num'] = function (el) {
-  var t = el.getAttribute('data-target');
-  var inp = document.querySelector('[data-num="' + t + '"]');
+  var root = logRoot(el) || document;
+  var inp = root.querySelector('[data-num="' + el.getAttribute('data-target') + '"]');
   if (inp) { inp.value = el.getAttribute('data-val'); inp.dispatchEvent(new Event('input', { bubbles: true })); }
 };
-
 ACTIONS['log-topic'] = function (el) {
-  var t = el.getAttribute('data-topic');
-  var i = LOGF.topics.indexOf(t);
+  var t = el.getAttribute('data-topic'), i = LOGF.topics.indexOf(t);
   if (i >= 0) LOGF.topics.splice(i, 1); else LOGF.topics.push(t);
-  el.classList.toggle('on');
+  el.classList.toggle('on', i < 0); el.setAttribute('aria-pressed', String(i < 0));
+  updateLogEcho(logRoot(el)); logKeepDraft();
 };
 
 /* adding a topic happens inline — a dialog here would wipe a half-filled form
@@ -1848,6 +2070,7 @@ ACTIONS['log-newtopic'] = function (el) {
     });
     dbSave(true);
     logField(root, 'topics').innerHTML = topicPickerHTML(c.id, LOGF.topics);
+    updateLogEcho(root); logKeepDraft();
     if (keep) {
       var again = logField(root, 'topics').querySelector('[data-act="log-newtopic"]');
       if (again) ACTIONS['log-newtopic'](again);
@@ -1869,30 +2092,39 @@ ACTIONS['log-save'] = function (el) {
   if (!c) { toast('Pick a course first'); return; }
 
   /* a missing field is a bug, not a reason to invent a number */
-  var count = logNum(root, 'count', 1);
-  var mins = logNum(root, 'mins', DB.profile.sessionMinutes);
+  var count = logNum(root, 'count', 0);
+  var mins = logNum(root, 'mins', 0);
   if (count === null || mins === null) { toast('Could not read the form — reopen it and try again', 4000); return; }
-  if (count <= 0 && mins <= 0) { toast('Nothing to log — add sessions or minutes'); return; }
+  if (count < 0 || count > 9999 || count % 1 || mins < 0 || mins > 1440) { toast('Use a whole number of completed units and 0–1440 minutes.'); return; }
+  if (count <= 0 && mins <= 0) { toast('Add study time or completed units.'); return; }
 
   var dateEl = logField(root, 'date'), noteEl = logField(root, 'note');
   var date = (dateEl && dateEl.value) || today();
   var note = (noteEl && noteEl.value.trim()) || '';
 
-  DB.sessions.push({
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today()) { toast('Choose today or an earlier study date.'); return; }
+  var receiptId = LOGF.receiptId;
+  var receipt = receiptId && DB.pomo && (DB.pomo.receipts || []).find(function (r) { return r.id === receiptId; });
+  var saved = {
     id: uid(), courseId: c.id, date: date, count: count, minutes: mins,
-    topics: LOGF.topics.slice(), note: note, createdAt: new Date().toISOString()
-  });
+    topics: LOGF.topics.slice(), note: note, source: receiptId ? 'focus' : 'manual', focusBlocks: receiptId ? 1 : 0, createdAt: new Date().toISOString()
+  };
+  DB.sessions.push(saved);
+  if (receiptId && typeof pomoDismissReceipt === 'function') pomoDismissReceipt(receiptId);
   DB.lastCourseId = c.id;
   dbSave(true);
 
   var pr = progressOf(c);
-  toast('Logged: ' + esc(c.name) + ' · ' + count + ' session' + (count === 1 ? '' : 's') + ' · ' + fmtMins(mins) +
-        ' · ' + fmtMins(pr.minutes) + ' total' + (c.totalSessions ? ', ' + pr.remaining + ' left' : ''));
+  toast('Saved: ' + esc(c.name) + ' · ' + count + ' ' + esc(courseUnits(c, count)) + ' · ' + fmtMins(mins), 6000, 'Undo', function () {
+    DB.sessions = DB.sessions.filter(function (s) { return s.id !== saved.id; });
+    if (receipt && DB.pomo) DB.pomo.receipts.push(receipt);
+    dbSave(true); route(); toast('Session undone');
+  });
   if (c.totalSessions && pr.remaining === 0 && c.status === 'active') {
     setTimeout(function () { askCourseFinished(c.id); }, 400);
   }
-  LOGF.topics = [];
-  if ($('#modal-root').classList.contains('on')) modalClose();
+  LOGF.topics = []; logForgetDraft();
+  if ($('#modal-root').classList.contains('on')) modalClose(true);
   route();
 };
 
@@ -1913,12 +2145,12 @@ ACTIONS['sess-edit'] = function (el) {
     '<div class="grid g2" style="gap:12px">' +
       '<div class="field"><label class="f">Course</label><select id="e-course">' + courseOptions(s.courseId) + '</select></div>' +
       '<div class="field"><label class="f">Date</label><input type="date" id="e-date" value="' + esc(s.date) + '"></div>' +
-      '<div class="field"><label class="f">Sessions</label>' + stepper('e-count', num(s.count, 1), 1, 0, 99) + '</div>' +
+      '<div class="field"><label class="f">Completed units</label>' + stepper('e-count', num(s.count, 0), 1, 0, 9999) + '</div>' +
       '<div class="field"><label class="f">Minutes</label>' + stepper('e-mins', num(s.minutes, 0), 5, 0, 1440) + '</div>' +
     '</div>' +
     '<div class="field"><label class="f">Topics</label><div class="chips" id="e-topics">' +
       cats.map(function (t) {
-        return '<button class="chip' + ((s.topics || []).indexOf(t) >= 0 ? ' on' : '') + '" data-act="e-topic" data-topic="' + esc(t) + '">' + esc(t) + '</button>';
+        return '<button class="chip' + ((s.topics || []).indexOf(t) >= 0 ? ' on' : '') + '" aria-pressed="' + ((s.topics || []).indexOf(t) >= 0) + '" data-act="e-topic" data-topic="' + esc(t) + '">' + esc(t) + '</button>';
       }).join('') + '</div></div>' +
     '<div class="field"><label class="f">Note</label><input type="text" id="e-note" value="' + esc(s.note || '') + '"></div>' +
     '<div class="modal-foot">' +
@@ -1932,15 +2164,26 @@ ACTIONS['sess-edit'] = function (el) {
       ACTIONS['e-topic'] = function (b) {
         var t = b.getAttribute('data-topic'), i = picked.indexOf(t);
         if (i >= 0) picked.splice(i, 1); else picked.push(t);
-        b.classList.toggle('on');
+        b.classList.toggle('on'); b.setAttribute('aria-pressed', String(i < 0));
+      };
+      box.querySelector('#e-course').onchange = function () {
+        var next = courseById(this.value), topics = next && next.categories || [];
+        picked = picked.filter(function (t) { return topics.indexOf(t) >= 0; });
+        box.querySelector('#e-topics').innerHTML = topics.map(function (t) {
+          var selected = picked.indexOf(t) >= 0;
+          return '<button class="chip' + (selected ? ' on' : '') + '" aria-pressed="' + selected + '" data-act="e-topic" data-topic="' + esc(t) + '">' + esc(t) + '</button>';
+        }).join('');
       };
       box.querySelector('#e-ok').onclick = function () {
+        var count = num(box.querySelector('[data-num="e-count"]').value, 0), mins = num(box.querySelector('[data-num="e-mins"]').value, 0);
+        if (count < 0 || count > 9999 || count % 1 || mins < 0 || mins > 1440) { toast('Enter valid completed units and minutes.'); return; }
         s.courseId = box.querySelector('#e-course').value;
         s.date = box.querySelector('#e-date').value || s.date;
         s.count = num(box.querySelector('[data-num="e-count"]').value, 1);
         s.minutes = num(box.querySelector('[data-num="e-mins"]').value, 0);
         s.note = box.querySelector('#e-note').value.trim();
         s.topics = picked;
+        if (typeof pomoClearSessionReceipt === 'function') pomoClearSessionReceipt(s.id);
         dbSave(true);
         modalClose();
         toast('Session updated — ' + fmtMins(s.minutes) + ' on ' + esc(courseName(s.courseId)));
@@ -1951,12 +2194,11 @@ ACTIONS['sess-edit'] = function (el) {
 };
 
 ACTIONS['sess-del'] = function (el) {
-  var id = el.getAttribute('data-id');
+  var id = el.getAttribute('data-id'), saved = sessionById(id); if (!saved) return;
   DB.sessions = DB.sessions.filter(function (s) { return s.id !== id; });
-  dbSave(true);
-  modalClose();
-  toast('Session deleted');
-  route();
+  if (typeof pomoClearSessionReceipt === 'function') pomoClearSessionReceipt(id);
+  dbSave(true); modalClose(); route();
+  toast('Session deleted', 8000, 'Undo', function () { DB.sessions.push(saved); dbSave(true); route(); });
 };
 
 function sessionRowsHTML(list, opts) {
@@ -1969,7 +2211,7 @@ function sessionRowsHTML(list, opts) {
       '<div style="min-width:0;flex:1 1 auto">' +
         '<div style="font-weight:600">' + esc(c ? c.name : 'Deleted course') +
           (opts.showDate === false ? '' : ' <span class="mini">· ' + fmtShort(s.date) + '</span>') + '</div>' +
-        '<div class="mini">' + num(s.count, 0) + ' session' + (num(s.count, 0) === 1 ? '' : 's') + ' · ' + fmtMins(s.minutes) +
+        '<div class="mini">' + num(s.count, 0) + ' ' + esc(courseUnits(c, num(s.count, 0))) + (s.source === 'focus' ? ' · focus block' : '') + ' · ' + fmtMins(s.minutes) +
           ((s.topics && s.topics.length) ? ' · ' + s.topics.map(esc).join(', ') : '') +
           (s.note ? ' · ' + esc(s.note) : '') + '</div>' +
       '</div>' +
@@ -2025,131 +2267,60 @@ function deadlineAlerts() {
   return out.sort(function (a, b) { return a.dl - b.dl; });
 }
 
+function courseActionsHTML(c) {
+  return '<div class="continue-actions"><button class="btn primary" data-act="course-focus" data-id="' + c.id + '">Start focus</button>' +
+    (c.link ? '<a class="btn" href="' + esc(c.link) + '" target="_blank" rel="noopener">Open course</a>' : '') +
+    '<button class="btn ghost" data-act="quick-log" data-course="' + c.id + '">Log</button></div>';
+}
 function renderDashboard(v) {
-  var t = today();
-  var todayList = DB.sessions.filter(function (s) { return s.date === t; });
-  var weekList = sessionsInRange(shiftDays(t, -6), t);
-  var monthList = sessionsInRange(shiftDays(t, -29), t);
-  var st = streaks();
-  var goal = DB.profile.dailyGoalMin || 0;
-  var totalMins = sumMins(DB.sessions);
-  var alerts = deadlineAlerts();
+  var t = today(), todayList = sessionsInRange(t, t), weekList = sessionsInRange(shiftDays(t, -6), t);
+  var goal = DB.profile.dailyGoalMin || 0, minutes = sumMins(todayList), st = streaks();
   var hour = new Date().getHours();
   var greet = hour < 5 ? 'Still up' : hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-
-  var html = '';
-  html += '<h1>' + greet + (DB.profile.name ? ', ' + esc(DB.profile.name) : '') + '</h1>';
-  html += '<p class="sub">' + fmtDate(t) + ' · ' + activeCourses().length + ' active course' +
-          (activeCourses().length === 1 ? '' : 's') + '</p>';
-
-  /* deadline nudges */
-  if (alerts.length) {
-    html += '<div class="card" style="border-left:3px solid var(--warn);margin-bottom:16px">';
-    html += '<h3 style="color:var(--warn)">Deadlines</h3>';
-    alerts.forEach(function (a) {
-      var over = a.dl < 0;
-      html += '<div class="row" style="padding:7px 0;border-bottom:1px dashed var(--rule)">' +
-        '<b>' + esc(a.course.name) + '</b>' +
-        '<span class="pill ' + (over ? 'bad' : 'warn') + '">' +
-          (over ? Math.abs(a.dl) + ' day' + (Math.abs(a.dl) === 1 ? '' : 's') + ' overdue' :
-           a.dl === 0 ? 'due today' : a.dl + ' day' + (a.dl === 1 ? '' : 's') + ' left') + '</span>' +
-        '<span class="mini">' + progressOf(a.course).remaining + ' sessions remaining</span>' +
-        '<span class="spacer"></span>' +
-        '<button class="btn sm" data-act="course-deadline-decide" data-id="' + a.course.id + '">Decide</button>' +
-      '</div>';
-    });
-    html += '</div>';
-  }
-
-  /* the readings */
-  html += '<div class="grid g4">';
-  html += '<div class="card row span2" style="gap:14px">' + goalRingHTML(sumMins(todayList), goal) +
-    '<div class="kpi"><span class="k">Today</span><span class="v">' + fmtMins(sumMins(todayList)) + '</span>' +
-    '<span class="n">' + sumCount(todayList) + ' sessions' + (goal ? ' · goal ' + fmtMins(goal) : '') + '</span></div></div>';
-  html += '<div class="card kpi"><span class="k">Last 7 days</span><span class="v">' + fmtMins(sumMins(weekList)) + '</span>' +
-    '<span class="n">' + sumCount(weekList) + ' sessions · ' + Math.round(sumMins(weekList) / 7) + 'm/day</span></div>';
-  html += '<div class="card kpi"><span class="k">Streak</span><span class="v">' + st.current +
-    ' <span style="font-size:15px;font-weight:400;color:var(--ink-3)">' + (st.current === 1 ? 'day' : 'days') + '</span></span>' +
-    '<span class="n">longest ' + st.longest + ' · ' + st.activeDays + ' days logged</span></div>';
-  html += '<div class="card kpi"><span class="k">All time</span><span class="v">' + fmtMins(totalMins) + '</span>' +
-    '<span class="n">' + sumCount(DB.sessions) + ' sessions logged</span></div>';
-  html += '</div>';
-
-  /* the same readings, drawn */
-  if (DB.sessions.length) {
-    var dayMap = byDayMap();
-    var narrow = isNarrow();
-    var d14 = [];
-    for (var i = (narrow ? 6 : 13); i >= 0; i--) {
-      var ds = shiftDays(t, -i);
-      d14.push({ label: fmtShort(ds), v: dayMap[ds] ? dayMap[ds].minutes : 0 });
-    }
-    var courseSlices = timeByCourse(monthList.length ? monthList : DB.sessions, 6);
-    var wk = [];
-    for (var w = 7; w >= 0; w--) {
-      var end = shiftDays(t, -w * 7), start = shiftDays(end, -6);
-      wk.push({ label: fmtShort(start), v: sumMins(sessionsInRange(start, end)) });
-    }
-
-    html += '<div class="sechead"><h2>' + (narrow ? 'The last week' : 'The last two weeks') + '</h2>' +
-      '<span class="mini">minutes per day</span></div>';
-    html += '<div class="card">' + barsSVG(d14, { fmt: fmtMins, h: narrow ? 120 : 150, w: narrow ? 360 : 720 }) + '</div>';
-
-    html += '<div class="sechead"><h2>Balance and trend</h2>' +
-      '<span class="mini">share by course · minutes per week</span>' +
-      '<span class="spacer"></span><a class="mini" href="#/stats">Full statistics</a></div>';
-    html += '<div class="split charts">';
-    html += '<div class="card"><h3>Time by course</h3>' +
-      donutSVG(courseSlices, { fmt: fmtMins, centreNote: monthList.length ? 'last 30 days' : 'all time', size: narrow ? 190 : 205 }) +
-      legendHTML(courseSlices, { fmt: fmtMins }) + '</div>';
-    html += '<div class="card"><h3>Weekly trend</h3>' + lineSVG(wk, { fmt: fmtMins, h: narrow ? 130 : 165, w: narrow ? 360 : 720 }) +
-      '<div class="hint">Each point is one week of tracked minutes.</div></div>';
-    html += '</div>';
-  }
-
-  /* log + today */
-  html += '<div class="sechead"><h2>Log today</h2><span class="spacer"></span>' +
-    '<a class="mini" href="#/calendar">Open calendar</a></div>';
-  html += '<div class="split log">';
-  html += logCardHTML();
-  html += '<div class="card"><h3>Today</h3>' +
-    sessionRowsHTML(todayList.slice().reverse(), { showDate: false }) +
-    '<h3 style="margin-top:18px">Last 30 days</h3>' + miniStripHTML(30) + '</div>';
-  html += '</div>';
-
-  /* course progress */
-  var act = activeCourses().slice().sort(function (a, b) {
-    var da = a.deadline ? daysLeft(a) : 9999, db2 = b.deadline ? daysLeft(b) : 9999;
-    return da - db2;
+  var h = '<h1>' + greet + (DB.profile.name ? ', ' + esc(DB.profile.name) : '') + '</h1>' +
+    '<p class="sub">' + fmtDate(t) + ' · Make room for a little progress.</p>';
+  h += '<div class="home-overview"><div class="card home-goal">' + (goal ? goalRingHTML(minutes, goal, 90) : '') +
+    '<div class="kpi"><span class="k">Study time today</span><span class="v">' + fmtMins(minutes) + '</span>' +
+    '<span class="n">' + (goal ? fmtMins(Math.max(0, goal - minutes)) + ' to your ' + fmtMins(goal) + ' goal' : 'Every bit counts') +
+    '</span><span class="mini">' + todayList.length + ' study entries · ' + todayList.filter(function (s) { return s.source === 'focus'; }).length + ' focus blocks</span></div></div>' +
+    '<div class="home-readings"><div class="card kpi"><span class="k">This week</span><span class="v">' + fmtMins(sumMins(weekList)) +
+    '</span><span class="n">Last 7 days</span></div><div class="card kpi"><span class="k">Study streak</span><span class="v">' + st.current +
+    ' <span class="mini">days</span></span><span class="n">Best ' + st.longest + ' days</span></div></div></div>';
+  if (typeof pomoReceiptsHTML === 'function') h += pomoReceiptsHTML();
+  var courses = activeCourses().slice().sort(function (a, b) {
+    if (a.id === DB.lastCourseId) return -1; if (b.id === DB.lastCourseId) return 1;
+    var da = a.deadline ? daysLeft(a) : Infinity, db = b.deadline ? daysLeft(b) : Infinity;
+    return da - db || progressOf(b).last.localeCompare(progressOf(a).last);
   });
-  html += '<div class="sechead"><h2>Course progress</h2><span class="spacer"></span>' +
-          '<a class="mini" href="#/classroom">Manage courses</a></div>';
-  if (!act.length) {
-    html += '<div class="empty">No active courses. <a href="#/classroom">Add one</a></div>';
-  } else {
-    html += '<div class="grid g2">';
-    act.forEach(function (c) {
-      var p = progressOf(c), dl = daysLeft(c), pace = paceNeeded(c);
-      html += '<div class="card course-card">' +
-        '<div class="cardhead"><span class="dot" style="background:' + courseColor(c.id) + '"></span>' +
-          '<span class="ttl">' + esc(c.name) + '</span>' +
-          '<span class="mini">' + (c.totalSessions ? p.done + '/' + c.totalSessions : p.done + ' done') + '</span></div>' +
-        '<div class="bar"><i style="width:' + p.pct + '%"></i></div>' +
-        '<div class="row tight mini">' +
-          '<span>' + fmtMins(p.minutes) + ' logged</span>' +
-          (c.totalSessions ? '<span>· ' + p.remaining + ' left</span>' : '') +
-          (dl !== null ? '<span class="pill ' + (dl < 0 ? 'bad' : dl <= 7 ? 'warn' : '') + '">Due ' + fmtShortY(c.deadline) +
-            ' (' + (dl < 0 ? Math.abs(dl) + 'd over' : dl + 'd') + ')</span>' : '') +
-          (pace && pace !== Infinity ? '<span class="pill">' + pace.toFixed(1) + ' sess/day needed</span>' : '') +
-        '</div>' +
-        (c.link ? '<div class="linkline"><a href="' + esc(c.link) + '" target="_blank" rel="noopener">Open course</a></div>' : '') +
-      '</div>';
-    });
-    html += '</div>';
+  h += '<div class="sechead"><h2>Continue studying</h2><span class="spacer"></span><a href="#/classroom">All courses</a></div>';
+  if (!courses.length) h += '<div class="empty">Your next chapter starts here. <a class="btn primary" href="#/classroom">Add a course</a></div>';
+  else {
+    h += '<div class="grid g3">' + courses.slice(0, 3).map(function (c) {
+      var p = progressOf(c);
+      return '<div class="card course-card continue-card"><div class="cardhead"><span class="dot" style="background:' + courseColor(c.id) + '"></span><h3 class="ttl" style="text-transform:none;letter-spacing:0;color:var(--ink);margin:0">' + esc(c.name) + '</h3></div>' +
+        '<div class="mini">' + p.done + (c.totalSessions ? ' / ' + c.totalSessions : '') + ' ' + esc(courseUnit(c)) + ' completed</div>' +
+        (c.totalSessions ? '<div class="bar" role="progressbar" aria-label="' + esc(c.name) + ' progress" aria-valuenow="' + p.pct + '" aria-valuemin="0" aria-valuemax="100"><i style="width:' + p.pct + '%"></i></div>' : '') +
+        '<div class="mini">' + (c.deadline ? 'Due ' + fmtShortY(c.deadline) : p.last ? 'Last studied ' + fmtShort(p.last) : 'Ready when you are') + '</div>' + courseActionsHTML(c) + '</div>';
+    }).join('') + '</div>';
   }
-
-  v.innerHTML = html;
-  wireLog();
+  var alerts = deadlineAlerts();
+  if (alerts.length) {
+    h += '<div class="sechead"><h2>Upcoming deadlines</h2></div><div class="card">' + alerts.map(function (a) {
+      return '<div class="row receipt"><b>' + esc(a.course.name) + '</b><span class="pill ' + (a.dl < 0 ? 'bad' : 'warn') + '">' +
+        (a.dl < 0 ? Math.abs(a.dl) + ' days overdue' : a.dl === 0 ? 'Due today' : a.dl + ' days left') +
+        '</span><span class="spacer"></span><button class="btn sm" data-act="course-deadline-decide" data-id="' + a.course.id + '">Review</button></div>';
+    }).join('') + '</div>';
+  }
+  h += '<div class="sechead"><h2>Today’s activity</h2><span class="spacer"></span><button class="btn sm" data-act="quick-log">Log a session</button></div>' +
+    '<div class="card activity-list">' + (todayList.length ? sessionRowsHTML(todayList.slice().reverse(), { showDate: false }) :
+      '<div class="empty">A fresh page. Start a focus block or record what you have studied.</div>') + '</div>';
+  h += '<div class="sechead"><h2>Your week</h2><span class="spacer"></span><a href="#/stats">Full statistics</a></div>';
+  if (DB.sessions.length) {
+    var dm = byDayMap(), data = [];
+    for (var i = 6; i >= 0; i--) { var d = shiftDays(t, -i); data.push({label: fmtShort(d), v: dm[d] ? dm[d].minutes : 0}); }
+    h += '<div class="card">' + barsSVG(data, {fmt: fmtMins, w: isNarrow() ? 360 : 720, h: isNarrow() ? 120 : 150}) + '</div>';
+  } else h += '<div class="card mini">Your weekly study chart will appear after your first entry.</div>';
+  v.innerHTML = h;
 }
 
 /* ===== 30-classroom.js ===== */
@@ -2160,93 +2331,57 @@ function renderDashboard(v) {
    met) the app asks the one question that matters: done, extend, or drop?
    ========================================================================== */
 
+var COURSE_VIEW = { q: '', sort: 'recent' };
 function renderClassroom(v) {
-  var groups = [
-    ['Active', DB.courses.filter(function (c) { return c.status === 'active'; })],
-    ['Completed', DB.courses.filter(function (c) { return c.status === 'completed'; })],
-    ['Dropped', DB.courses.filter(function (c) { return c.status === 'dropped'; })]
-  ];
-
-  var html = '<div class="row"><div><h1>Classroom</h1>' +
-    '<p class="sub">Every course you are taking, with its class link, topics and deadline.</p></div>' +
-    '<span class="spacer"></span>' +
-    '<button class="btn primary" data-act="course-add">Add course</button>' +
-    '<button class="btn" data-act="csv-import-open">Import CSV</button></div>';
-
-  if (!DB.courses.length) {
-    html += '<div class="empty">No courses yet.<br><br>' +
-      '<button class="btn primary" data-act="course-add">Add your first course</button> ' +
-      '<button class="btn" data-act="seed-starter">Use the starter list</button></div>';
-  }
-
-  groups.forEach(function (g) {
-    if (!g[1].length) return;
-    html += '<div class="sechead"><h2>' + g[0] + '</h2><span class="pill">' + g[1].length + '</span></div>';
-    html += '<div class="grid g2">';
-    g[1].forEach(function (c) { html += courseCardHTML(c); });
-    html += '</div>';
+  var q = COURSE_VIEW.q.toLowerCase();
+  var filtered = DB.courses.filter(function (c) { return c.name.toLowerCase().indexOf(q) >= 0; }).sort(function (a, b) {
+    if (COURSE_VIEW.sort === 'name') return a.name.localeCompare(b.name);
+    if (COURSE_VIEW.sort === 'deadline') return (a.deadline || '9999').localeCompare(b.deadline || '9999');
+    return progressOf(b).last.localeCompare(progressOf(a).last) || a.name.localeCompare(b.name);
   });
-
-  v.innerHTML = html;
+  var h = '<div class="row"><div><h1>Courses</h1><p class="sub">Pick up where you left off.</p></div><span class="spacer"></span>' +
+    '<button class="btn primary" data-act="course-add">Add course</button><button class="btn" data-act="csv-import-open">Import CSV</button></div>' +
+    '<div class="course-tools"><div><label class="f" for="course-search">Find a course</label><input type="search" id="course-search" placeholder="Search your courses…" value="' + esc(COURSE_VIEW.q) + '"></div>' +
+    '<div><label class="f" for="course-sort">Sort by</label><select id="course-sort">' + [['recent','Recent activity'],['deadline','Deadline'],['name','Name']].map(function (o) { return '<option value="' + o[0] + '"' + (COURSE_VIEW.sort === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div></div>';
+  if (!DB.courses.length) h += '<div class="empty">Add your first course or <button class="btn" data-act="seed-starter">Use the starter list</button></div>';
+  else if (!filtered.length) h += '<div class="empty">No courses match. <button class="btn" data-act="course-search-reset">Clear search</button></div>';
+  [['active','Active'],['completed','Completed'],['dropped','Dropped']].forEach(function (group) {
+    var list = filtered.filter(function (c) { return c.status === group[0]; }); if (!list.length) return;
+    h += group[0] === 'active' ? '<div class="sechead"><h2>Active</h2><span class="pill">' + list.length + '</span></div>' :
+      '<details class="disclosure course-archive"' + (q ? ' open' : '') + '><summary>' + group[1] + '<span class="pill">' + list.length + '</span></summary>';
+    h += '<div class="grid g2">' + list.map(courseCardHTML).join('') + '</div>';
+    if (group[0] !== 'active') h += '</details>';
+  });
+  v.innerHTML = h;
+  $('#course-search').oninput = function () {
+    var pos = this.selectionStart; COURSE_VIEW.q = this.value; renderClassroom(v);
+    var input = $('#course-search'); input.focus({preventScroll:true}); input.setSelectionRange(pos, pos);
+  };
+  $('#course-sort').onchange = function () { COURSE_VIEW.sort = this.value; renderClassroom(v); };
 }
-
+ACTIONS['course-search-reset'] = function () { COURSE_VIEW.q = ''; route(); };
 function courseCardHTML(c) {
-  var p = progressOf(c), dl = daysLeft(c);
+  var p = progressOf(c), dl = daysLeft(c), active = c.status === 'active';
   var res = DB.resources.filter(function (r) { return r.courseId === c.id; }).length;
   var nb = DB.notebooks.filter(function (n) { return n.courseId === c.id; }).length;
-  var h = '<div class="card course-card ' + (c.status === 'completed' ? 'done' : c.status === 'dropped' ? 'dropped' : '') + '">';
-  h += '<div class="cardhead"><span class="dot" style="background:' + courseColor(c.id) + '"></span>' +
-    '<span class="ttl" title="' + esc(c.name) + '">' + esc(c.name) + '</span>' +
-    (c.status === 'completed' ? '<span class="tag" style="background:var(--ok-soft);color:var(--ok)">completed</span>' : '') +
-    (c.status === 'dropped' ? '<span class="tag">dropped</span>' : '') + '</div>';
-
-  h += '<div class="bar"><i style="width:' + p.pct + '%"></i></div>';
-  h += '<div class="row tight mini">' +
-    '<span><b>' + p.done + '</b>' + (c.totalSessions ? ' / ' + c.totalSessions : '') + ' sessions</span>' +
-    (c.totalSessions ? '<span>· ' + p.remaining + ' remaining</span>' : '') +
-    '<span>· ' + fmtMins(p.minutes) + ' tracked</span>' +
-    (p.last ? '<span>· last ' + fmtShort(p.last) + '</span>' : '') +
-    '</div>';
-
-  h += '<div class="row tight">';
-  h += dl !== null
-    ? '<span class="pill ' + (dl < 0 ? 'bad' : dl <= 7 ? 'warn' : '') + '">Due ' + fmtDate(c.deadline) + ' · ' +
-      (dl < 0 ? Math.abs(dl) + 'd over' : dl + 'd left') + '</span>' +
-      '<button class="btn sm ghost" data-act="course-deadline-decide" data-id="' + c.id + '">Change</button>'
-    : '<button class="btn sm ghost" data-act="course-deadline-set" data-id="' + c.id + '">Set a deadline</button>';
-  h += '</div>';
-
-  if (c.categories && c.categories.length) {
-    h += '<div class="chips">' + c.categories.map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</div>';
-  } else {
-    h += '<button class="btn sm ghost" data-act="course-topics" data-id="' + c.id + '">Add topics — they feed the brain map</button>';
-  }
-
-  var links = [];
-  if (c.link) links.push('<a href="' + esc(c.link) + '" target="_blank" rel="noopener">Class / playlist</a>');
-  (c.extraLinks || []).forEach(function (l) {
-    links.push('<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.label || 'Link') + '</a>');
-  });
-  links.push('<a href="#/resources?course=' + c.id + '">Resources (' + res + ')</a>');
-  links.push('<a href="#/notebooks?course=' + c.id + '">Notebooks (' + nb + ')</a>');
-  links.push('<a href="#" data-act="course-edit" data-id="' + c.id + '">Edit</a>');
-  links.push('<a href="#" data-act="course-del" data-id="' + c.id + '">Remove</a>');
-  h += '<div class="linkline">' + links.join('') + '</div>';
-
-  if (c.notes) h += '<div class="mini">' + esc(c.notes) + '</div>';
-  if (c.extensions && c.extensions.length) {
-    h += '<div class="mini">Extended ' + c.extensions.length + '× (was ' + fmtShortY(c.extensions[0].from) + ')</div>';
-  }
-
-  h += '<div class="row tight">';
-  if (c.status === 'active') {
-    h += '<button class="btn sm" data-act="course-complete" data-id="' + c.id + '">Mark completed</button>' +
-         '<button class="btn sm ghost" data-act="course-drop" data-id="' + c.id + '">Drop</button>';
-  } else {
-    h += '<button class="btn sm" data-act="course-reopen" data-id="' + c.id + '">Reopen</button>';
-  }
-  h += '</div></div>';
-  return h;
+  return '<article class="card course-card' + (active ? '' : ' done') + '"><div class="cardhead">' +
+    '<span class="dot" style="background:' + courseColor(c.id) + '"></span><h2 class="ttl">' + esc(c.name) + '</h2>' +
+    (!active ? '<span class="tag">' + esc(c.status) + '</span>' : '') + '</div>' +
+    (c.totalSessions ? '<div class="bar" role="progressbar" aria-label="Course progress" aria-valuenow="' + p.pct + '" aria-valuemin="0" aria-valuemax="100"><i style="width:' + p.pct + '%"></i></div>' : '') +
+    '<div class="mini"><b>' + p.done + (c.totalSessions ? ' / ' + c.totalSessions : '') + '</b> ' + esc(courseUnit(c)) + ' complete · ' + fmtMins(p.minutes) + ' studied</div>' +
+    '<div class="mini">' + (dl !== null ? 'Due ' + fmtShortY(c.deadline) + (dl < 0 ? ' · overdue' : ' · ' + dl + ' days left') : p.last ? 'Last studied ' + fmtShortY(p.last) : 'Ready to begin') + '</div>' +
+    (active ? courseActionsHTML(c) : '<button class="btn" data-act="course-reopen" data-id="' + c.id + '">Reopen course</button>') +
+    '<details class="disclosure"><summary>Details<span class="mini">Materials & topics</span></summary><div class="details-content">' +
+      '<div class="linkline"><a href="#/resources?course=' + c.id + '">Resources (' + res + ')</a><a href="#/notebooks?course=' + c.id + '">Notebooks (' + nb + ')</a>' +
+      (c.extraLinks || []).map(function (l) { return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.label || 'Link') + '</a>'; }).join('') + '</div>' +
+      '<div class="chips">' + (c.categories || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</div>' +
+      (c.notes ? '<p class="mini">' + esc(c.notes) + '</p>' : '') +
+      (c.extensions && c.extensions.length ? '<p class="mini">Deadline extended ' + c.extensions.length + ' times</p>' : '') + '</div></details>' +
+    '<details class="disclosure"><summary>Manage<span class="mini">Edit & organize</span></summary><div class="management">' +
+      '<button class="btn" data-act="course-edit" data-id="' + c.id + '">Edit course</button>' +
+      '<button class="btn" data-act="' + (c.deadline ? 'course-deadline-decide' : 'course-deadline-set') + '" data-id="' + c.id + '">' + (c.deadline ? 'Review deadline' : 'Set deadline') + '</button>' +
+      (active ? '<button class="btn" data-act="course-complete" data-id="' + c.id + '">Mark completed</button><button class="btn" data-act="course-drop" data-id="' + c.id + '">Drop course</button>' : '') +
+      '<button class="btn danger" data-act="course-del" data-id="' + c.id + '">Remove course</button></div></details></article>';
 }
 
 /* ------------------------------- add / edit ------------------------------ */
@@ -2263,8 +2398,9 @@ function courseFormModal(course) {
       '<input type="text" id="c-name" value="' + esc(c.name === 'Untitled course' ? '' : c.name) + '" placeholder="e.g. Statistics"></div>' +
     '<div class="field"><label class="f">Class / playlist link</label>' +
       '<input type="url" id="c-link" value="' + esc(c.link) + '" placeholder="https://youtube.com/playlist?list=… or your LMS URL"></div>' +
+    '<div class="field"><label class="f" for="c-unit">Progress is measured in</label><input id="c-unit" type="text" maxlength="30" value="' + esc(courseUnit(c)) + '" placeholder="lectures, chapters, exercises…"></div>' +
     '<div class="grid g2" style="gap:12px">' +
-      '<div class="field"><label class="f">Total sessions / lectures in the course</label>' + stepper('c-total', c.totalSessions, 1, 0, 9999) +
+      '<div class="field"><label class="f">Total units in the course</label>' + stepper('c-total', c.totalSessions, 1, 0, 9999) +
         '<div class="hint">0 = untracked, just log time.</div></div>' +
       '<div class="field"><label class="f">Already finished before today</label>' + stepper('c-off', c.doneOffset, 1, 0, 9999) +
         '<div class="hint">Head start, so progress starts where you actually are.</div></div>' +
@@ -2314,6 +2450,7 @@ function courseFormModal(course) {
         if (!name) { toast('Give the course a name'); return; }
         c.name = name;
         c.link = box.querySelector('#c-link').value.trim();
+        c.unit = box.querySelector('#c-unit').value.trim() || 'units';
         c.totalSessions = readNum('c-total', 0);
         c.doneOffset = readNum('c-off', 0);
         c.deadline = box.querySelector('#c-dl').value || '';
@@ -2377,7 +2514,7 @@ ACTIONS['course-deadline-set'] = function (el) {
   modal(
     '<h2>Set a deadline for ' + esc(c.name) + '</h2>' +
     '<p class="sub">Optional — but with one, the app can tell you the pace you need.' +
-      (c.totalSessions ? ' ' + p.remaining + ' sessions remain.' : '') + '</p>' +
+      (c.totalSessions ? ' ' + p.remaining + ' ' + esc(courseUnit(c)) + ' remain.' : '') + '</p>' +
     '<div class="field"><label class="f">Finish by</label><input type="date" id="d-date" value="' + shiftDays(today(), 30) + '" min="' + today() + '"></div>' +
     '<div class="chips">' + [14, 30, 60, 90, 180].map(function (n) {
       return '<button class="chip" data-act="d-quick" data-d="' + n + '">' + n + ' days</button>';
@@ -2390,7 +2527,7 @@ ACTIONS['course-deadline-set'] = function (el) {
       function pace() {
         var d = daysBetween(today(), inp.value);
         box.querySelector('#d-pace').innerHTML = (c.totalSessions && d > 0)
-          ? 'That is <b>' + (p.remaining / d).toFixed(1) + '</b> sessions/day for ' + d + ' days.'
+          ? 'That is <b>' + (p.remaining / d).toFixed(1) + '</b> ' + esc(courseUnit(c)) + '/day for ' + d + ' days.'
           : '';
       }
       ACTIONS['d-quick'] = function (b) { inp.value = shiftDays(today(), +b.getAttribute('data-d')); pace(); };
@@ -2519,13 +2656,13 @@ function monthGridHTML(mk, dayMap) {
     var dots = e ? Object.keys(e.courses).map(function (cid) {
       return '<span style="display:inline-block;width:6px;height:6px;border-radius:1px;background:' + courseColor(cid) + '"></span>';
     }).join('') : '';
-    h += '<div class="day' + (ds === today() ? ' today' : '') + (ds === CAL.sel ? ' sel' : '') +
+    h += '<button type="button" aria-label="' + esc(fmtDate(ds) + ' · ' + (e ? fmtMins(e.minutes) + ' studied' : 'No study logged')) + '" aria-pressed="' + (ds === CAL.sel) + '"' + (ds === today() ? ' aria-current="date"' : '') + ' class="day' + (ds === today() ? ' today' : '') + (ds === CAL.sel ? ' sel' : '') +
       (lvl >= 3 ? ' deep' : '') + '" ' +
       'data-act="cal-day" data-d="' + ds + '" ' +
       'style="background:' + (lvl ? 'color-mix(in srgb, var(--accent) ' + (lvl * 15) + '%, var(--surface))' : 'var(--surface)') + '">' +
-      '<div class="d">' + d + '</div>' +
-      (e ? '<div class="m">' + fmtMinsTight(e.minutes) + '</div><div class="row tight" style="gap:3px">' + dots + '</div>' : '') +
-      '</div>';
+      '<span class="d">' + d + '</span>' +
+      (e ? '<span class="m">' + fmtMinsTight(e.minutes) + '</span><span class="row tight" style="gap:3px">' + dots + '</span>' : '') +
+      '</button>';
   }
   h += '</div>';
   return h;
@@ -2546,7 +2683,7 @@ function yearHeatHTML(year, dayMap) {
       var ds = iso(cur), inYear = ds.slice(0, 4) === year;
       var e = inYear ? dayMap[ds] : null;
       var lvl = !e ? 0 : clamp(Math.ceil(e.minutes / (max || 1) * 4), 1, 4);
-      h += '<div class="c" data-l="' + lvl + '"' + (inYear ? ' title="' + fmtDate(ds) + ' — ' + (e ? fmtMins(e.minutes) + ', ' + e.count + ' sessions' : 'nothing') + '"' : ' style="opacity:.25"') + '></div>';
+      h += '<div class="c" data-l="' + lvl + '"' + (inYear ? ' title="' + fmtDate(ds) + ' — ' + (e ? fmtMins(e.minutes) + ', ' + e.count + ' completed units' : 'nothing') + '"' : ' style="opacity:.25"') + '></div>';
       cur.setDate(cur.getDate() + 1);
     }
     h += '</div>';
@@ -2566,28 +2703,28 @@ function renderCalendar(v) {
   years[today().slice(0, 4)] = 1;
 
   var h = '<div class="row"><div><h1>Log &amp; Calendar</h1>' +
-    '<p class="sub">Click any day to see or add sessions. Colour = minutes studied.</p></div>' +
+    '<p class="sub">Select a date to see its study entries. Shading shows study time.</p></div>' +
     '<span class="spacer"></span>' +
     '<select id="cal-course" class="filter">' + courseOptions(CAL.courseId, true) + '</select></div>';
 
   /* month nav + grid + day detail */
   h += '<div class="split cal">';
   h += '<div class="card">' +
-    '<div class="row" style="margin-bottom:10px">' +
-      '<button class="btn sm" data-act="cal-prev">‹</button>' +
-      '<h2 style="margin:0;min-width:150px;text-align:center">' + fmtMonth(mk) + '</h2>' +
-      '<button class="btn sm" data-act="cal-next">›</button>' +
-      '<button class="btn sm ghost" data-act="cal-today">Today</button>' +
+    '<div class="calendar-nav">' +
+      '<button class="btn sm" data-act="cal-prev" aria-label="Previous month">Previous</button>' +
+      '<h2 style="margin:0;min-width:0;text-align:center">' + fmtMonth(mk) + '</h2>' +
+      '<button class="btn sm" data-act="cal-next" aria-label="Next month">Next</button>' +
+      '</div><div class="row calendar-summary"><button class="btn sm ghost" data-act="cal-today">Today</button>' +
       '<span class="spacer"></span>' +
       '<span class="pill"><b>' + fmtMins(sumMins(monthList)) + '</b> this month</span>' +
-      '<span class="pill"><b>' + sumCount(monthList) + '</b> sessions</span>' +
+      '<span class="pill"><b>' + sumCount(monthList) + '</b> completed units</span>' +
     '</div>' + monthGridHTML(mk, dayMap) + '</div>';
 
-  h += '<div class="card">' +
+  h += '<div class="card" id="calendar-day-detail" aria-live="polite">' +
     '<div class="row" style="margin-bottom:8px"><h2 style="margin:0">' + fmtDate(CAL.sel) + '</h2></div>' +
     '<div class="row tight mini" style="margin-bottom:10px">' +
       '<span class="pill"><b>' + fmtMins(sumMins(selList)) + '</b></span>' +
-      '<span class="pill"><b>' + sumCount(selList) + '</b> sessions</span></div>' +
+      '<span class="pill"><b>' + sumCount(selList) + '</b> completed units</span></div>' +
     sessionRowsHTML(selList, { showDate: false }) +
     '<div class="row" style="margin-top:12px"><button class="btn primary" data-act="cal-add" data-d="' + CAL.sel + '">Log on this day</button></div>' +
     '</div>';
@@ -2601,7 +2738,7 @@ function renderCalendar(v) {
   var yList = list.filter(function (s) { return s.date.slice(0, 4) === CAL.year; });
   h += '<div class="card"><div class="row tight mini" style="margin-bottom:10px">' +
     '<span class="pill"><b>' + fmtMins(sumMins(yList)) + '</b> in ' + CAL.year + '</span>' +
-    '<span class="pill"><b>' + sumCount(yList) + '</b> sessions</span>' +
+    '<span class="pill"><b>' + sumCount(yList) + '</b> completed units</span>' +
     '<span class="pill"><b>' + Object.keys(calDayMap(yList)).length + '</b> active days</span>' +
     '</div>' + yearHeatHTML(CAL.year, dayMap) + '</div>';
 
@@ -2612,7 +2749,7 @@ function renderCalendar(v) {
     h += '<div class="empty">Log your first session and this table starts filling up.</div>';
   } else {
     h += '<div class="card scroll-x"><table><thead><tr>' +
-      '<th>Month</th><th class="num">Sessions</th><th class="num">Time</th><th class="num">Active days</th>' +
+      '<th>Month</th><th class="num">Completed units</th><th class="num">Time</th><th class="num">Active days</th>' +
       '<th class="num">Avg / active day</th><th>Most studied</th></tr></thead><tbody>';
     months.forEach(function (m) {
       h += '<tr><td><a href="#" data-act="cal-goto" data-m="' + m.key + '">' + fmtMonth(m.key) + '</a></td>' +
@@ -2642,7 +2779,10 @@ function monthShift(mk, n) {
 ACTIONS['cal-prev'] = function () { CAL.month = monthShift(CAL.month, -1); route(); };
 ACTIONS['cal-next'] = function () { CAL.month = monthShift(CAL.month, 1); route(); };
 ACTIONS['cal-today'] = function () { CAL.month = today().slice(0, 7); CAL.sel = today(); route(); };
-ACTIONS['cal-day'] = function (el) { CAL.sel = el.getAttribute('data-d'); route(); };
+ACTIONS['cal-day'] = function (el) {
+  CAL.sel = el.getAttribute('data-d'); route();
+  var selected = $('.cal [data-d="' + CAL.sel + '"]'); if (selected) selected.focus({preventScroll:true});
+};
 ACTIONS['cal-goto'] = function (el) { CAL.month = el.getAttribute('data-m'); CAL.sel = el.getAttribute('data-m') + '-01'; route(); };
 ACTIONS['cal-add'] = function (el) {
   logReset(el.getAttribute('data-d'));
@@ -2655,7 +2795,7 @@ ACTIONS['cal-add'] = function (el) {
    Google Drive, or a path on this machine.
    ========================================================================== */
 
-var RES = { q: '', courseId: '', type: '', status: '' };
+var RES = { q: '', courseId: '', type: '', status: '', filtersOpen: false };
 
 /* a local path (or file://) needs different handling from a normal URL */
 function isLocalPath(u) {
@@ -2696,25 +2836,24 @@ function renderResources(v) {
     '<p class="sub">Books, PDFs, playlists and folders — on the web, in OneDrive/Drive, or on this machine.</p></div>' +
     '<span class="spacer"></span><button class="btn primary" data-act="res-add">Add resource</button></div>';
 
-  h += '<div class="card" style="margin-bottom:14px"><div class="row">' +
-    '<input type="text" id="res-q" class="filter" placeholder="Search title, link, notes…" value="' + esc(RES.q) + '">' +
-    '<select id="res-course" class="filter">' + courseOptions(RES.courseId, true) + '</select>' +
-    '<select id="res-type" class="filter"><option value="">All types</option>' +
-      Object.keys(RES_TYPES).map(function (k) {
-        return '<option value="' + k + '"' + (RES.type === k ? ' selected' : '') + '>' + RES_TYPES[k].label + '</option>';
-      }).join('') + '</select>' +
-    '<select id="res-status" class="filter">' +
-      ['', 'todo', 'reading', 'done'].map(function (s) {
-        return '<option value="' + s + '"' + (RES.status === s ? ' selected' : '') + '>' +
-          (s === '' ? 'Any status' : s === 'todo' ? 'To read' : s === 'reading' ? 'In progress' : 'Finished') + '</option>';
-      }).join('') + '</select>' +
-    '<span class="spacer"></span><span class="pill"><b>' + list.length + '</b> of ' + DB.resources.length + '</span>' +
-    '</div></div>';
+  var active = [RES.courseId, RES.type, RES.status].filter(Boolean).length;
+  h += '<div class="card filter-panel"><label class="f" for="res-q">Search resources</label>' +
+    '<div class="row"><input type="search" id="res-q" placeholder="Search title, link or notes…" value="' + esc(RES.q) + '">' +
+    '<span class="pill">' + list.length + ' of ' + DB.resources.length + '</span>' +
+    (active || RES.q ? '<button class="btn ghost" data-act="res-reset">Clear filters</button>' : '') + '</div>' +
+    '<details class="disclosure" id="res-filters"' + (RES.filtersOpen ? ' open' : '') + '><summary>Filters<span class="mini">' +
+    (active ? active + ' active' : 'Course, type & status') + '</span></summary><div class="filter-fields">' +
+    '<div class="field"><label class="f" for="res-course">Course</label><select id="res-course">' + courseOptions(RES.courseId, true) + '</select></div>' +
+    '<div class="field"><label class="f" for="res-type">Type</label><select id="res-type"><option value="">All types</option>' +
+    Object.keys(RES_TYPES).map(function (k) { return '<option value="' + k + '"' + (RES.type === k ? ' selected' : '') + '>' + RES_TYPES[k].label + '</option>'; }).join('') + '</select></div>' +
+    '<div class="field"><label class="f" for="res-status">Status</label><select id="res-status">' +
+    [['','Any status'],['todo','To read'],['reading','In progress'],['done','Finished']].map(function (o) { return '<option value="' + o[0] + '"' + (RES.status === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div></div></details>' +
+    (active ? '<p class="hint">' + [RES.courseId ? esc(courseName(RES.courseId)) : '', RES.type ? esc(RES_TYPES[RES.type].label) : '', RES.status ? (RES.status === 'todo' ? 'To read' : RES.status === 'reading' ? 'In progress' : 'Finished') : ''].filter(Boolean).join(' · ') + '</p>' : '') + '</div>';
 
   if (!DB.resources.length) {
     h += '<div class="empty">Nothing here yet.<br><br><button class="btn primary" data-act="res-add">Add the first resource</button></div>';
   } else if (!list.length) {
-    h += '<div class="empty">Nothing matches that filter.</div>';
+    h += '<div class="empty">No resources match. <button class="btn" data-act="res-reset">Clear search & filters</button></div>';
   } else {
     h += '<div class="grid g2">';
     list.forEach(function (r) {
@@ -2746,13 +2885,17 @@ function renderResources(v) {
 
   v.innerHTML = h;
   var qi = $('#res-q');
-  qi.oninput = function () { RES.q = qi.value; };
-  qi.onchange = function () { route(); };
-  qi.onkeydown = function (e) { if (e.key === 'Enter') route(); };
+  qi.oninput = function () {
+    var pos = this.selectionStart; RES.q = this.value; renderResources(v);
+    var next = $('#res-q'); next.focus({preventScroll:true}); next.setSelectionRange(pos, pos);
+  };
+  $('#res-filters').ontoggle = function () { RES.filtersOpen = this.open; };
   $('#res-course').onchange = function () { RES.courseId = this.value; route(); };
   $('#res-type').onchange = function () { RES.type = this.value; route(); };
   $('#res-status').onchange = function () { RES.status = this.value; route(); };
 }
+
+ACTIONS['res-reset'] = function () { RES.q = ''; RES.courseId = ''; RES.type = ''; RES.status = ''; route(); };
 
 function resById(id) { return DB.resources.filter(function (r) { return r.id === id; })[0]; }
 
@@ -2966,6 +3109,7 @@ var MAP = {
   view: { k: 1, tx: 0, ty: 0 },
   rot: -Math.PI / 2,          // where the first course starts
   spin: true, labels: true,   /* pulled from index.html edit (dc85c0a): map spins by default */
+  mode: 'map', q: '', courseId: '', touchPan: false, paused: false, drawKey: '',
   pan: null, hover: null, raf: null, ink: null
 };
 
@@ -2973,9 +3117,12 @@ var MAP_RING = 320;      /* smaller wheel on a phone, so the names still fit */
 function mapSizeRing() { MAP_RING = isNarrow() ? 250 : 320; }
 
 function mapBuild() {
-  var ts = topicStats();
+  var ts = topicStats(), visits = {};
+  DB.sessions.forEach(function (s) {
+    (s.topics || []).forEach(function (t) { var key = s.courseId + '::' + t; visits[key] = (visits[key] || 0) + 1; });
+  });
   var nodes = [], links = [], byKey = {};
-  var courses = DB.courses.filter(function (c) { return c.status !== 'dropped'; });
+  var courses = DB.courses.filter(function (c) { return c.status !== 'dropped' && (!MAP.courseId || c.id === MAP.courseId); });
   if (!courses.length) { MAP.nodes = []; MAP.links = []; MAP.byKey = {}; return; }
 
   /* angular budget: one slot per point, plus a gap between subjects */
@@ -3009,8 +3156,8 @@ function mapBuild() {
         var st = ts.nodes[key] || { count: 0, minutes: 0, last: '' };
         var tn = {
           key: 't::' + key, kind: 'topic', label: topic, topic: topic, color: courseColor(c.id), courseId: c.id,
-          count: st.count, minutes: st.minutes, last: st.last, ang: ang,
-          r: st.count ? 3.4 + 2.1 * Math.sqrt(st.count) : 2.6
+          count: visits[key] || 0, minutes: st.minutes, last: st.last, ang: ang,
+          r: visits[key] ? 3.4 + 2.1 * Math.sqrt(visits[key]) : 2.6
         };
         nodes.push(tn); byKey[tn.key] = tn;
       }
@@ -3230,7 +3377,7 @@ function mapDraw() {
 
   /* labels: dots when zoomed out, names as you come closer */
   if (MAP.labels) {
-    var showCourse = k >= 0.42, showTopic = k >= 0.9;
+    var showCourse = k >= (isNarrow() ? 0.18 : 0.42), showTopic = k >= 0.9;
     MAP.nodes.forEach(function (n) {
       var isHov = hov && hov.key === n.key;
       if (!(isHov || (n.kind === 'course' ? showCourse : showTopic)) || !lit(n)) return;
@@ -3244,7 +3391,11 @@ function mapDraw() {
       ctx.textBaseline = 'middle';
       ctx.font = (n.kind === 'course' ? (isNarrow() ? '600 11.5px ' : '600 13px ') : '400 11.5px ') + ink.serif;
       var label = n.kind === 'course' ? n.label : n.label + (n.count ? ' · ' + n.count : '');
-      if (isNarrow() && label.length > 11) label = label.slice(0, 10) + '…';
+      var maxLabel = isNarrow() ? Math.min(84, W * .22) : 150;
+       if (ctx.measureText(label).width > maxLabel) {
+         while (label.length > 1 && ctx.measureText(label + '…').width > maxLabel) label = label.slice(0, -1);
+         label += '…';
+       }
       ctx.strokeStyle = ink.paper;
       ctx.lineWidth = 3.5;
       ctx.strokeText(label, 0, 0);
@@ -3268,8 +3419,10 @@ function mapDraw() {
 
 function mapTick() {
   if (!$('#map')) { MAP.raf = null; return; }
-  if (MAP.spin) MAP.rot += 0.0012;
-  mapDraw();
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (MAP.spin && !MAP.paused && !MAP.pan && !MAP.hover && !document.hidden && !reduced && !$('#modal-root').classList.contains('on')) MAP.rot += 0.0012;
+  var key = [MAP.rot, MAP.view.k, MAP.view.tx, MAP.view.ty, MAP.labels, MAP.hover && MAP.hover.key].join('|');
+  if (key !== MAP.drawKey) { mapDraw(); MAP.drawKey = key; }
   MAP.raf = requestAnimationFrame(mapTick);
 }
 
@@ -3279,8 +3432,8 @@ function mapFit() {
   var W = cv.clientWidth, H = cv.clientHeight;
   /* reserve room in SCREEN pixels for the labels that sit outside the ring,
      so a long subject name never runs off the sheet */
-  var m = isNarrow() ? 72 : 100;
-  MAP.view.k = clamp(Math.min((W - m * 2) / (MAP_RING * 2), (H - m * 1.5) / (MAP_RING * 2)), 0.28, 3);
+  var m = isNarrow() ? Math.min(84, W * .22) + 20 : 172;
+  MAP.view.k = clamp(Math.min((W - m * 2) / (MAP_RING * 2), (H - m * 2) / (MAP_RING * 2)), 0.12, 3);
   MAP.view.tx = W / 2;
   MAP.view.ty = H / 2;
 }
@@ -3303,7 +3456,35 @@ function mapZoomAt(mx, my, f) {
   MAP.view.k = k2;
 }
 
+function mapControlsHTML() {
+  return '<div class="map-tools"><div class="segmented" aria-label="Map display">' +
+    '<button class="btn" data-act="map-mode" data-mode="map" aria-pressed="' + (MAP.mode === 'map') + '">Map</button>' +
+    '<button class="btn" data-act="map-mode" data-mode="list" aria-pressed="' + (MAP.mode === 'list') + '">List</button></div>' +
+    '<div class="field"><label class="f" for="map-course">Course</label><select id="map-course">' + courseOptions(MAP.courseId, true) + '</select></div>' +
+    '<div class="field map-search-field"><label class="f" for="map-search">Find a topic or course</label><input id="map-search" type="search" value="' + esc(MAP.q) + '" placeholder="Search the map…"></div></div>';
+}
+function wireMapControls(v) {
+  $('#map-course').onchange = function () { MAP.courseId = this.value; renderMap(v); labelFields(v); };
+  $('#map-search').oninput = function () {
+    var pos = this.selectionStart; MAP.q = this.value; MAP.mode = 'list'; renderMap(v);
+    var input = $('#map-search'); input.focus({preventScroll:true}); input.setSelectionRange(pos,pos);
+  };
+}
+function mapListHTML() {
+  var q = MAP.q.toLowerCase();
+  var nodes = MAP.nodes.filter(function (n) { return !q || (n.label + ' ' + courseName(n.courseId)).toLowerCase().indexOf(q) >= 0; });
+  if (!nodes.length) return '<div class="empty">No topics match. <button class="btn" data-act="map-clear">Clear filters</button></div>';
+  return '<div class="map-list">' + nodes.map(function (n) {
+    return '<button class="btn map-entry" data-act="map-detail" data-key="' + esc(n.key) + '" style="--course-color:' + n.color + '">' +
+      '<span class="swatch" aria-hidden="true"></span><span>' + esc(n.label) + '<span class="mini">' +
+      (n.kind === 'course' ? 'Course · ' + n.count + ' completed units' : esc(courseName(n.courseId)) + (n.count ? ' · studied' : ' · not started')) +
+      ' · ' + fmtMins(n.minutes) + '</span></span></button>';
+  }).join('') + '</div>';
+}
+
 function renderMap(v) {
+  if (MAP.raf) { cancelAnimationFrame(MAP.raf); MAP.raf = null; }
+  MAP.hover = null; MAP.pan = null; MAP.drawKey = '';
   var ts = topicStats();
   var totalTopics = 0, litTopics = 0;
   DB.courses.forEach(function (c) {
@@ -3315,40 +3496,46 @@ function renderMap(v) {
   });
 
   var h = '<h1>Brain Map</h1>' +
-    '<p class="sub">Every subject and topic is a point on the wheel, tied back to one pivot. ' +
-    'Points grow as you log sessions; topics studied together get threaded to each other.</p>' +
+    '<p class="sub">Your courses and topics, connected by study.</p>' +
     '<div class="row tight" style="margin-bottom:14px">' +
       '<span class="pill"><b>' + litTopics + '</b> of ' + totalTopics + ' topics started</span>' +
       '<span class="pill"><b>' + Object.keys(ts.links).length + '</b> threads</span>' +
       '<span class="pill"><b>' + DB.courses.filter(function (c) { return c.status !== 'dropped'; }).length + '</b> subjects</span>' +
     '</div>';
 
+  h += mapControlsHTML();
+  mapSizeRing(); mapBuild();
+  if (MAP.mode === 'list' || MAP.q) {
+    h += mapListHTML(); v.innerHTML = h; wireMapControls(v); return;
+  }
   if (!totalTopics) {
     h += '<div class="empty">Your map needs topics.<br><br>Add a few to any course in ' +
-      '<a href="#/classroom">Classroom</a> (e.g. Regression, ANOVA, p-values), then tick them off while logging a session.</div>';
-    v.innerHTML = h;
+      '<a href="#/classroom">Courses</a> (e.g. Regression, ANOVA, p-values), then tick them off while logging a session.</div>';
+    v.innerHTML = h; wireMapControls(v);
     return;
   }
 
   h += '<div id="map-wrap">' +
-    '<canvas id="map"></canvas>' +
+    '<canvas id="map" class="' + (MAP.touchPan ? 'map-explore' : '') + '" role="img" aria-label="Study topic map. Use List view for full names and keyboard navigation."></canvas>' +
     '<div id="map-ctl">' +
       '<button class="btn sm" data-act="map-zoom" data-d="1.35">Zoom in</button>' +
       '<button class="btn sm" data-act="map-zoom" data-d="0.74">Zoom out</button>' +
       '<button class="btn sm" data-act="map-fit">Fit</button>' +
-      '<button class="btn sm" data-act="map-spin">' + (MAP.spin ? 'Stop' : 'Spin') + '</button>' +
+      '<button class="btn sm map-touch-control" data-act="map-pan" aria-pressed="' + MAP.touchPan + '">' + (MAP.touchPan ? 'Scroll page' : 'Pan map') + '</button>' +
+      '<button class="btn sm" data-act="map-spin">' + (MAP.spin && !MAP.paused && !window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'Pause spin' : 'Spin') + '</button>' +
       '<button class="btn sm" data-act="map-labels">Labels</button>' +
     '</div>' +
     '<div id="map-tip" class="hidden"></div>' +
     '</div>' +
     '<div class="chips" style="margin:12px 0">' + DB.courses.filter(function (c) { return c.status !== 'dropped'; }).map(function (c) {
-      return '<span class="pill"><span style="display:inline-block;width:8px;height:8px;background:' + courseColor(c.id) + '"></span>' + esc(c.name) + '</span>';
+      return '<button class="chip' + (MAP.courseId === c.id ? ' on' : '') + '" data-act="map-filter" data-id="' + c.id + '" aria-pressed="' + (MAP.courseId === c.id) + '"><span style="display:inline-block;width:8px;height:8px;background:' + courseColor(c.id) + '"></span> ' + esc(c.name) + '</button>';
     }).join('') + '</div>' +
     '<div class="hint">Hover a point to isolate its threads · drag to pan · scroll or the buttons to zoom · tap or click a point for detail. ' +
     'Zoomed out the wheel is just dots; zoom in for subject names, further in for topics. ' +
     'Hollow points are topics you have not started; dashed threads join the same topic name in two subjects.</div>';
 
   v.innerHTML = h;
+  wireMapControls(v);
 
   mapSizeRing();
   mapBuild();
@@ -3371,16 +3558,17 @@ function renderMap(v) {
     tip.style.top = Math.max(6, my - 12) + 'px';
     tip.innerHTML = '<b>' + esc(n.label) + '</b><br><span class="mini">' +
       (n.kind === 'course'
-        ? 'subject · ' + n.count + ' sessions · ' + fmtMins(n.minutes) + ' · ' +
+        ? 'course · ' + n.count + ' completed units · ' + fmtMins(n.minutes) + ' · ' +
           (((courseById(n.courseId) || {}).categories) || []).length + ' topics'
         : esc(courseName(n.courseId)) + ' · ' +
-          (n.count ? n.count + ' sessions · ' + fmtMins(n.minutes) + (n.last ? ' · last ' + fmtShort(n.last) : '')
+          (n.count ? n.count + ' study entries · ' + fmtMins(n.minutes) + (n.last ? ' · last ' + fmtShort(n.last) : '')
                    : 'not started')) + '</span>';
   }
 
   cv.onpointermove = function (e) {
     var l = local(e);
     if (MAP.pan) {
+      if (e.pointerType === 'touch' && !MAP.touchPan) return;
       MAP.view.tx = MAP.pan.tx + (l[0] - MAP.pan.mx);
       MAP.view.ty = MAP.pan.ty + (l[1] - MAP.pan.my);
       return;
@@ -3388,6 +3576,7 @@ function renderMap(v) {
     hoverAt(l[0], l[1]);
   };
   cv.onpointerdown = function (e) {
+    MAP.paused = true; var spinButton = $('[data-act="map-spin"]'); if (spinButton) spinButton.textContent = 'Spin';
     var l = local(e);
     try { cv.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
     MAP.pan = { mx: l[0], my: l[1], tx: MAP.view.tx, ty: MAP.view.ty };
@@ -3399,16 +3588,19 @@ function renderMap(v) {
     var moved = MAP.pan && (Math.abs(l[0] - MAP.pan.mx) > 4 || Math.abs(l[1] - MAP.pan.my) > 4);
     MAP.pan = null;
     cv.classList.remove('drag');
+    try { cv.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
     if (moved) return;
     var n = mapNodeAt(l[0], l[1]);
-    if (n) mapNodeModal(n);
+    if (n) { MAP.paused = true; mapNodeModal(n); }
   };
+  cv.onpointercancel = function () { MAP.pan = null; cv.classList.remove('drag'); };
   cv.onpointerleave = function () {
     MAP.hover = null; MAP.pan = null;
     tip.classList.add('hidden');
     cv.classList.remove('drag');
   };
   cv.onwheel = function (e) {
+    if (isNarrow()) return;
     e.preventDefault();
     var l = local(e);
     mapZoomAt(l[0], l[1], Math.exp(-e.deltaY * 0.0016));
@@ -3422,12 +3614,12 @@ function mapNodeModal(n) {
     var p = progressOf(c);
     modal('<h2>' + esc(c.name) + '</h2>' +
       '<div class="row tight" style="margin:12px 0">' +
-        '<span class="pill"><b>' + p.done + '</b>' + (c.totalSessions ? ' / ' + c.totalSessions : '') + ' sessions</span>' +
+        '<span class="pill"><b>' + p.done + '</b>' + (c.totalSessions ? ' / ' + c.totalSessions : '') + ' ' + esc(courseUnit(c)) + '</span>' +
         '<span class="pill"><b>' + fmtMins(p.minutes) + '</b> tracked</span>' +
         '<span class="pill"><b>' + (c.categories || []).length + '</b> topics</span></div>' +
       '<div class="chips">' + (c.categories || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join('') + '</div>' +
       '<div class="modal-foot"><button class="btn" data-act="modal-close">Close</button>' +
-      '<a class="btn primary" href="#/classroom" data-act="modal-close">Open in Classroom</a></div>', null);
+      '<a class="btn primary" href="#/classroom" data-act="modal-close">Open Courses</a></div>', null);
     return;
   }
   var sess = DB.sessions.filter(function (s) { return s.courseId === n.courseId && (s.topics || []).indexOf(n.topic) >= 0; })
@@ -3437,7 +3629,7 @@ function mapNodeModal(n) {
   modal('<h2>' + esc(n.label) + '</h2>' +
     '<p class="sub">' + esc(courseName(n.courseId)) + '</p>' +
     '<div class="row tight" style="margin-bottom:14px">' +
-      '<span class="pill"><b>' + n.count + '</b> sessions</span>' +
+      '<span class="pill"><b>' + n.count + '</b> study entries</span>' +
       '<span class="pill"><b>' + fmtMins(n.minutes) + '</b></span>' +
       (n.last ? '<span class="pill">last ' + fmtShort(n.last) + '</span>' : '<span class="pill">not started</span>') + '</div>' +
     (Object.keys(related).length ? '<h3>Studied alongside</h3><div class="chips" style="margin-bottom:16px">' +
@@ -3458,12 +3650,22 @@ ACTIONS['map-log'] = function (el) {
 };
 ACTIONS['map-fit'] = function () { mapFit(); };
 ACTIONS['map-labels'] = function () { MAP.labels = !MAP.labels; };
-ACTIONS['map-spin'] = function (el) { MAP.spin = !MAP.spin; el.textContent = MAP.spin ? 'Stop' : 'Spin'; };
+ACTIONS['map-spin'] = function (el) {
+  if (MAP.paused) { MAP.paused = false; MAP.spin = true; } else MAP.spin = !MAP.spin;
+  el.textContent = MAP.spin ? 'Pause spin' : 'Spin';
+};
 ACTIONS['map-zoom'] = function (el) {
   var cv = $('#map');
   if (!cv) return;
   mapZoomAt(cv.clientWidth / 2, cv.clientHeight / 2, num(el.getAttribute('data-d'), 1.3));
 };
+
+ACTIONS['map-mode'] = function (el) { MAP.mode = el.getAttribute('data-mode'); if (MAP.mode === 'map') MAP.q = ''; route(); };
+ACTIONS['map-filter'] = function (el) { var id = el.getAttribute('data-id'); MAP.courseId = MAP.courseId === id ? '' : id; route(); };
+ACTIONS['map-clear'] = function () { MAP.courseId = ''; MAP.q = ''; route(); };
+ACTIONS['map-detail'] = function (el) { var n = MAP.byKey[el.getAttribute('data-key')]; if (n) { MAP.paused = true; mapNodeModal(n); } };
+
+ACTIONS['map-pan'] = function (el) { MAP.touchPan = !MAP.touchPan; $('#map').classList.toggle('map-explore', MAP.touchPan); el.textContent = MAP.touchPan ? 'Scroll page' : 'Pan map'; el.setAttribute('aria-pressed', String(MAP.touchPan)); };
 
 /* ===== 80-stats.js ===== */
 /* =============================================================================
@@ -3672,6 +3874,10 @@ function pomoNotify(title, body) {
 function pomoStart() {
   var p = pomoState();
   if (p.running) return;
+  if (p.phase === 'focus' && (!courseById(p.courseId) || courseById(p.courseId).status === 'dropped')) {
+    pomoShowPanel(); toast('Choose a course before starting your focus block.');
+    $('#pomo-course').focus(); return;
+  }
   if (p.left <= 0) p.left = pomoLen(p.phase);
   p.endsAt = Date.now() + p.left * 1000;
   p.running = true;
@@ -3704,44 +3910,60 @@ function pomoSetPhase(phase, autoStart) {
   if (autoStart) pomoStart(); else { dbSave(true); pomoPaint(); }
 }
 
-/* a focus block ran out */
+function pomoDismissReceipt(id) {
+  var p = pomoState(); p.receipts = (p.receipts || []).filter(function (r) { return r.id !== id; });
+}
+function pomoClearSessionReceipt(id) {
+  var p = pomoState(); p.receipts = (p.receipts || []).filter(function (r) { return r.sessionId !== id; });
+}
+function pomoReviewReceipt(id) {
+  var receipt = (pomoState().receipts || []).find(function (r) { return r.id === id; });
+  if (!receipt) return;
+  if (receipt.sessionId && sessionById(receipt.sessionId)) {
+    ACTIONS['sess-edit']({ getAttribute: function () { return receipt.sessionId; } });
+  } else {
+    logReset(receipt.date);
+    if (courseById(receipt.courseId)) LOGF.courseId = receipt.courseId;
+    LOGF.minutes = receipt.minutes; LOGF.count = 0; LOGF.note = 'Focus block'; LOGF.receiptId = receipt.id;
+    modal(logCardHTML({prefix:'focuslog'}), function () { wireLog(); });
+  }
+}
+function pomoReceiptsHTML() {
+  var receipts = DB.pomo && DB.pomo.receipts || [];
+  if (!receipts.length) return '';
+  return '<div class="sechead"><h2>Finished focus blocks</h2></div><div class="card">' + receipts.map(function (r) {
+    return '<div class="receipt"><div><b>' + fmtMins(r.minutes) + (r.courseId ? ' · ' + esc(courseName(r.courseId)) : '') + '</b>' +
+      '<p class="mini">' + (r.sessionId ? 'Study time recorded · confirm completed units and topics' : 'Ready to record · completed units start at zero') +
+      ' · ' + fmtShort(r.date) + '</p></div><span class="receipt-actions"><button class="btn" data-act="focus-review" data-id="' + r.id + '">' +
+      (r.sessionId ? 'Review' : 'Record time') + '</button>' +
+      (r.sessionId ? '<button class="btn ghost" data-act="focus-dismiss" data-id="' + r.id + '">Dismiss</button>' : '') + '</span></div>';
+  }).join('') + '</div>';
+}
+/* A timer measures effort. Syllabus units are confirmed separately. */
 function pomoFinish(awayMinutes) {
   var p = pomoState(), c = pomoCfg();
   if (p.phase === 'focus') {
     p.cycles = (p.cycles || 0) + 1;
-    var mins = c.focus;
-    var course = p.courseId ? courseById(p.courseId) : null;
+    var course = courseById(p.courseId), session = null;
     if (c.autoLog && course) {
-      DB.sessions.push({
-        id: uid(), courseId: course.id, date: today(),
-        count: c.countAsSession ? 1 : 0, minutes: mins,
-        topics: [], note: 'Pomodoro', createdAt: new Date().toISOString()
-      });
-      DB.lastCourseId = course.id;
-      toast('Focus block done — ' + fmtMins(mins) + ' logged to ' + esc(course.name));
-    } else {
-      toast('Focus block done — ' + fmtMins(mins), 8000, course ? 'Log it' : null, course ? function () {
-        DB.sessions.push({
-          id: uid(), courseId: course.id, date: today(), count: c.countAsSession ? 1 : 0,
-          minutes: mins, topics: [], note: 'Pomodoro', createdAt: new Date().toISOString()
-        });
-        dbSave(true); route();
-      } : null);
+      session = { id: uid(), courseId: course.id, date: today(), count: 0, minutes: c.focus,
+        topics: [], note: 'Focus block', source: 'focus', focusBlocks: 1, createdAt: new Date().toISOString() };
+      DB.sessions.push(session); DB.lastCourseId = course.id;
     }
-    pomoBeep(3);
-    pomoNotify('Focus block done', (course ? course.name + ' · ' : '') + 'take a break');
-    var nextPhase = (p.cycles % (c.cycle || 4) === 0) ? 'long' : 'short';
-    pomoSetPhase(nextPhase, false);
+    var receipt = { id: uid(), courseId: course ? course.id : null, date: today(), minutes: c.focus, sessionId: session ? session.id : null };
+    if (!p.receipts) p.receipts = []; p.receipts.push(receipt);
+    toast('Focus block finished · ' + fmtMins(c.focus) + (session ? ' recorded' : ' ready to record'), 10000, 'Review', function () { pomoReviewReceipt(receipt.id); });
+    pomoBeep(3); pomoNotify('Focus block done', (course ? course.name + ' · ' : '') + 'take a break');
+    pomoSetPhase(p.cycles % (c.cycle || 4) === 0 ? 'long' : 'short', false);
   } else {
-    pomoBeep(2);
-    pomoNotify('Break over', 'Back to it');
-    toast('Break over — next focus block ready');
-    pomoSetPhase('focus', false);
+    pomoBeep(2); pomoNotify('Break over', 'Back to it');
+    toast('Break over — next focus block ready'); pomoSetPhase('focus', false);
   }
   if (awayMinutes) toast('The timer finished while this tab was away.', 4000);
-  dbSave(true);
-  route();
+  dbSave(true); route();
 }
+ACTIONS['focus-review'] = function (el) { pomoReviewReceipt(el.getAttribute('data-id')); };
+ACTIONS['focus-dismiss'] = function (el) { pomoDismissReceipt(el.getAttribute('data-id')); dbSave(true); route(); };
 
 var POMO_RING = 168;
 
@@ -3780,7 +4002,7 @@ function pomoMountPanel() {
       '<button class="btn sm" data-act="pomo-skip">Skip</button>' +
     '</div>' +
     '<div class="field" style="margin-bottom:8px"><label class="f">Working on</label>' +
-      '<select id="pomo-course"><option value="">— nothing yet —</option>' + courseOptions(p.courseId) + '</select></div>' +
+      '<select id="pomo-course" aria-label="Course for this focus block"><option value="">Choose a course</option>' + courseOptions(p.courseId) + '</select></div>' +
     '<div class="row tight mini" style="margin-bottom:10px">' +
       '<span class="pill"><b id="pm-cycles">' + (p.cycles || 0) + '</b> blocks done</span>' +
       '<span class="pill" id="pm-lens">' + c.focus + '/' + c.short + '/' + c.long + ' min</span>' +
@@ -3794,12 +4016,16 @@ function pomoMountPanel() {
       '<div class="field" style="margin-top:8px"><label class="f">Long break every N blocks</label>' +
         '<input type="number" id="pc-cycle" value="' + c.cycle + '" min="2" max="12"></div>' +
       '<label class="chk"><input type="checkbox" id="pc-autolog"' + (c.autoLog ? ' checked' : '') + '> log finished blocks automatically</label>' +
-      '<label class="chk"><input type="checkbox" id="pc-count"' + (c.countAsSession ? ' checked' : '') + '> count each block as 1 session</label>' +
+      '<p class="hint">Focus blocks record time. Confirm finished lectures or chapters in the completion review.</p>' +
       '<label class="chk"><input type="checkbox" id="pc-sound"' + (c.sound ? ' checked' : '') + '> chime when it ends</label>' +
       '<button class="btn sm primary" data-act="pomo-save" style="margin-top:10px">Save settings</button>' +
     '</details>';
   var sel = $('#pomo-course');
-  sel.onchange = function () { pomoState().courseId = sel.value || null; dbSave(true); };
+  sel.onchange = function () {
+    if (p.running) { sel.value = p.courseId || ''; toast('Pause the timer before changing course.'); return; }
+    p.courseId = sel.value || null; dbSave(true);
+  };
+  labelFields(panel);
 }
 
 /* cheap per-tick update of just the changing numbers */
@@ -3848,12 +4074,22 @@ ACTIONS['pomo-skip'] = function () {
   var p = pomoState();
   pomoSetPhase(p.phase === 'focus' ? ((p.cycles + 1) % (pomoCfg().cycle || 4) === 0 ? 'long' : 'short') : 'focus', false);
 };
+function pomoShowPanel() {
+  var panel = $('#pomo-panel'); panel.classList.remove('hidden');
+  panel.setAttribute('role', 'region'); panel.setAttribute('aria-label', 'Focus timer');
+  pomoMountPanel(); pomoPaint();
+}
 ACTIONS['pomo-panel'] = function () {
   var panel = $('#pomo-panel');
-  var opening = panel.classList.contains('hidden');
-  panel.classList.toggle('hidden');
-  if (opening) pomoMountPanel();
-  pomoPaint();
+  if (panel.classList.contains('hidden')) pomoShowPanel();
+  else { panel.classList.add('hidden'); $('#pomo-mini [data-act="pomo-panel"]').focus(); }
+};
+ACTIONS['course-focus'] = function (el) {
+  var c = courseById(el.getAttribute('data-id')), p = pomoState(); if (!c) return;
+  if (p.running) { pomoShowPanel(); if (p.courseId !== c.id) toast('Pause your current block before switching courses.'); return; }
+  var changed = p.courseId !== c.id; p.courseId = c.id;
+  if (changed || p.phase !== 'focus') pomoSetPhase('focus', false);
+  pomoStart(); pomoShowPanel();
 };
 ACTIONS['pomo-save'] = function () {
   var c = pomoCfg();
@@ -3862,7 +4098,7 @@ ACTIONS['pomo-save'] = function () {
   c.long = clamp(num($('#pc-long').value, 15), 1, 90);
   c.cycle = clamp(num($('#pc-cycle').value, 4), 2, 12);
   c.autoLog = $('#pc-autolog').checked;
-  c.countAsSession = $('#pc-count').checked;
+  c.countAsSession = false;
   c.sound = $('#pc-sound').checked;
   var p = pomoState();
   if (!p.running) p.left = pomoLen(p.phase);
@@ -4271,7 +4507,7 @@ var ROUTE_LAST = '';
 
 /* ---- mobile chrome: slim top title + bottom tab bar ---- */
 var PAGE_LABELS = {
-  dashboard: 'Dashboard', calendar: 'Log & Calendar', classroom: 'Classroom',
+  dashboard: 'Today', calendar: 'Calendar', classroom: 'Courses',
   resources: 'Resources', notebooks: 'Notebooks', map: 'Brain Map',
   stats: 'Statistics', data: 'Data & Backup'
 };
@@ -4294,7 +4530,9 @@ function updateChrome(page) {
     esc(PAGE_LABELS[page] || 'Study Tracker') + '</span>';
   var active = TAB_FOR[page] || 'more';
   $$('#tabbar [data-tab]').forEach(function (el) {
-    el.classList.toggle('on', el.getAttribute('data-tab') === active);
+    var selected = el.getAttribute('data-tab') === active;
+    el.classList.toggle('on', selected);
+    if (el.tagName === 'A') { if (selected) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current'); }
   });
 }
 
@@ -4323,8 +4561,13 @@ function route() {
     if (!LOGF.courseId || !courseById(LOGF.courseId)) logReset(page === 'calendar' ? CAL.sel : today());
   }
 
-  var v = $('#view');
+  var v = $('#view'), previousFocus = document.activeElement;
   ROUTES[page](v);
+  if (previousFocus && !previousFocus.isConnected && !$('#modal-root').classList.contains('on')) {
+    var heading = v.querySelector('h1'); if (heading) { heading.tabIndex = -1; heading.focus({preventScroll:true}); }
+  }
+  labelFields(v);
+  document.title = (PAGE_LABELS[page] || 'Study Tracker') + ' · Study Tracker';
   if (page !== ROUTE_LAST) { window.scrollTo(0, 0); ROUTE_LAST = page; }
   renderTopStats();
   pomoPaint();
@@ -4344,16 +4587,18 @@ function renderTopStats() {
   storeRefreshLine();          // one owner for the storage line and the footer
 }
 
-ACTIONS['quick-log'] = function () {
+ACTIONS['quick-log'] = function (el) {
   if (!DB.courses.length) { location.hash = '#/classroom'; route(); ACTIONS['course-add'](); return; }
   logReset(today());
-  modal(logCardHTML({ prefix: 'qlog' }).replace('class="card"', 'class=""'), function () { wireLog(); });
+  var course = el && el.getAttribute ? el.getAttribute('data-course') : null;
+  if (courseById(course)) LOGF.courseId = course; else logRestoreDraft();
+  modal(logCardHTML({ prefix: 'qlog' }), function () { wireLog(); });
 };
 ACTIONS['modal-close'] = function () { modalClose(); };
 
 ACTIONS['more-sheet'] = function () {
   var page = (location.hash.replace(/^#\/?/, '').split('?')[0]) || 'dashboard';
-  var items = [['classroom', 'Classroom'], ['stats', 'Statistics'], ['resources', 'Resources'],
+  var items = [['classroom', 'Courses'], ['stats', 'Statistics'], ['resources', 'Resources'],
                ['notebooks', 'Notebooks'], ['data', 'Data & Backup']];
   var rows = items.map(function (it) {
     var on = page === it[0];
@@ -4362,8 +4607,7 @@ ACTIONS['more-sheet'] = function () {
   }).join('');
   rows += '<button class="sheet-row" type="button" data-act="more-theme"><span class="sq"></span>' +
     (DB.profile.theme === 'dark' ? 'Switch to paper mode' : 'Switch to dark mode') + '</button>';
-  modal('<h2>More</h2><div class="sheet-list">' + rows + '</div>' +
-    '<div class="modal-foot"><button class="btn" data-act="modal-close">Close</button></div>');
+  modal('<h2>More</h2><div class="sheet-list">' + rows + '</div><div class="storage-summary">' + storageSummaryHTML() + '</div>');
 };
 ACTIONS['more-go'] = function () { modalClose(); };            // the anchor navigates on its own
 ACTIONS['more-theme'] = function () { modalClose(); ACTIONS['theme'](); };
